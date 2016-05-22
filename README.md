@@ -2,6 +2,10 @@
 
 Shows image preview in the gutter
 
+## It looks like this
+
+![Demonstrating svg image preview in a css file](https://raw.githubusercontent.com/kisstkondoros/gutter-preview/master/images/sample.png)
+
 ## Hacking the CSS of VSCode
 Until [this](https://github.com/Microsoft/vscode/pull/6553) is not merged / fixed in an other way, the following workaround needs to be applied.
   
@@ -20,6 +24,8 @@ Until [this](https://github.com/Microsoft/vscode/pull/6553) is not merged / fixe
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+- 0.0.2
+  - Sample image attached
 - 0.0.1
   - Initial project setup
 
