@@ -24,6 +24,8 @@ Until [this](https://github.com/Microsoft/vscode/pull/6553) is not merged / fixe
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+- 0.0.3
+  - Displayname fixed
 - 0.0.2
   - Sample image attached
 - 0.0.1
