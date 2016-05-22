@@ -1,0 +1,49 @@
+{
+  "name": "vscode-gutter-preview",
+  "private": true,
+  "description": "Shows image preview in the gutter",
+  "author": "Tamas Kiss",
+  "publisher": "kisstkondoros",
+  "license": "MIT",
+  "version": "0.0.1",
+  "displayName": "image preview",
+  "icon": "images/logo.png",
+  "engines": {
+    "vscode": "0.10.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kisstkondoros/gutter-preview.git"
+  },
+  "keywords": [
+    "vscode",
+    "image",
+    "preview"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "activationEvents":[ 
+    "*"
+  ],
+  "main": "./out/extension",
+  "scripts": {
+    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "watch": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "clean": "grunt clean:sourceArtifacts",
+    "compile": "grunt compile",
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "vscode": " ^0.11.7",
+    "grunt": "^1.0.1",
+    "grunt-cli": "^1.2.0",
+    "load-grunt-config": "^0.19.1",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-shell": "^1.2.1"
+  },
+  "dependencies": {
+    "typescript": "^1.8.7"
+  }
+}
