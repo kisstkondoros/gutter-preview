@@ -6,6 +6,7 @@ import * as fs from 'fs';
 interface Decoration {
   textEditorDecorationType: vscode.TextEditorDecorationType;
   decorations: vscode.DecorationOptions[];
+  absoluteImagePath: string;
 }
 
 const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp'];
@@ -24,7 +25,7 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
         gutterIconPath: absoluteImagePath
       };
       let textEditorDecorationType: vscode.TextEditorDecorationType = vscode.window.createTextEditorDecorationType(decorationRenderOptions);
-      lastScanResult.push({ textEditorDecorationType, decorations });
+      lastScanResult.push({ textEditorDecorationType, decorations, absoluteImagePath });
     }
   }
 }
@@ -119,27 +120,28 @@ const collectEntries = (editor, lastScanResult) => {
 
 const clearEditor = (editor, lastScanResult) => {
   lastScanResult.forEach(element => {
-    let {textEditorDecorationType, decorations} = element;
+    let {textEditorDecorationType, decorations, absoluteImagePath} = element;
     vscode.window.activeTextEditor.setDecorations(textEditorDecorationType, []);
   });
 };
 
 const updateEditor = (editor, lastScanResult) => {
   lastScanResult.forEach(element => {
-    let {textEditorDecorationType, decorations} = element;
+    let {textEditorDecorationType, decorations, absoluteImagePath} = element;
     vscode.window.activeTextEditor.setDecorations(textEditorDecorationType, decorations);
   });
 };
 
 export function activate(context) {
+  let disposables: Disposable[] = [];
   let lastScanResult: Decoration[] = [];
   let throttleId = undefined;
-  let throttledScan = () =>{
+  let throttledScan = () => {
     if (throttleId)
       clearTimeout(throttleId);
-    throttleId = setTimeout(()=>scan(), 500);
+    throttleId = setTimeout(() => scan(), 500);
   };
-  
+
   const scan = () => {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -149,11 +151,29 @@ export function activate(context) {
       updateEditor(editor, lastScanResult);
     }
   };
-
+  let hoverProvider = {
+    provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.Hover {
+      let range = document.getWordRangeAtPosition(position);
+      let result: vscode.Hover = undefined;
+      if (range) {
+        let resultset: vscode.MarkedString[] = [];
+        lastScanResult.forEach(item => item.decorations.forEach(dec => {
+          if (range.start.line == dec.range.start.line) {
+            let markedString: vscode.MarkedString = "![" + item.absoluteImagePath + "](" + item.absoluteImagePath + ")";
+            resultset.push(markedString);
+          }
+        }));
+        result = new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+      }
+      return result;
+    }
+  }
+  disposables.push(vscode.languages.registerHoverProvider('*', hoverProvider));
   vscode.workspace.onDidChangeTextDocument(throttledScan)
   vscode.workspace.onDidOpenTextDocument(() => {
     lastScanResult = [];
     throttledScan();
   });
   throttledScan();
+  context.subscriptions.push(...disposables);
 }
