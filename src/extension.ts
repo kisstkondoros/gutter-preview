@@ -22,7 +22,8 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
         hoverMessage: ""
       });
       let decorationRenderOptions: vscode.DecorationRenderOptions = {
-        gutterIconPath: absoluteImagePath
+        gutterIconPath: absoluteImagePath,
+        gutterIconSize: 'contain'
       };
       let textEditorDecorationType: vscode.TextEditorDecorationType = vscode.window.createTextEditorDecorationType(decorationRenderOptions);
       lastScanResult.push({ textEditorDecorationType, decorations, absoluteImagePath });
@@ -38,19 +39,6 @@ const urlRecognizer = {
 
     if (match && match.length > 1) {
       imagePath = match[1];
-    }
-    return imagePath;
-  }
-}
-
-const relativeUrlRecognizer = {
-  recognize: (editor, line) => {
-    let imageUrls: RegExp = /[\w~,;\-\\\/\./?%&+#=]*/igm;
-    let match = imageUrls.exec(line);
-    let imagePath: string
-
-    if (match && match.length > 0) {
-      imagePath = match[0];
     }
     return imagePath;
   }
@@ -77,7 +65,7 @@ const simpleUrlMapper: AbsoluteUrlMapper = {
 const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
   map(editor, imagePath) {
     let absoluteImagePath: string;
-    let testImagePath = path.join(editor.document.fileName, imagePath);
+    let testImagePath = path.join(editor.document.fileName,'../' + imagePath);
     if (fs.existsSync(testImagePath)) {
       absoluteImagePath = testImagePath;
     }
@@ -100,22 +88,22 @@ const nonNull = (item: string) => {
   return !(item == null || item == undefined || item.length == 0);
 }
 
-const recognizers: ImagePathRecognizer[] = [urlRecognizer, relativeUrlRecognizer];
+const recognizers: ImagePathRecognizer[] = [urlRecognizer];
 const absoluteUrlMappers: AbsoluteUrlMapper[] = [simpleUrlMapper, relativeToOpenFileUrlMapper, relativeToWorkspaceRootFileUrlMapper];
 
-const collectEntries = (editor, lastScanResult) => {
-  const content: string = editor.document.getText();
-  let lines = content.split(/\r?\n/g);
-  lines.forEach((line, lineIndex) => {
+const collectEntries = (editor:vscode.TextEditor, lastScanResult) => {
+  var max = editor.document.lineCount;
+  for (var lineIndex = 0; lineIndex < max; lineIndex++) {
+    var lineObject = editor.document.lineAt(lineIndex);
+    var line = lineObject.text;
     let recognizedImages = recognizers.map(recognizer => recognizer.recognize(editor, line)).filter(item => nonNull(item));
     recognizedImages.forEach((imagePath) => {
       let absoluteUrls = absoluteUrlMappers.map(mapper => mapper.map(editor, imagePath)).filter(item => nonNull(item));
       absoluteUrls.forEach((absoluteImagePath) => {
         appendImagePath(absoluteImagePath, lineIndex, lastScanResult)
-      })
-
+      });
     });
-  });
+  };
 };
 
 const clearEditor = (editor, lastScanResult) => {
@@ -168,7 +156,7 @@ export function activate(context) {
       return result;
     }
   }
-  disposables.push(vscode.languages.registerHoverProvider('*', hoverProvider));
+  disposables.push(vscode.languages.registerHoverProvider(['css', 'less', 'sass'], hoverProvider));
   vscode.workspace.onDidChangeTextDocument(throttledScan)
   vscode.workspace.onDidOpenTextDocument(() => {
     lastScanResult = [];
