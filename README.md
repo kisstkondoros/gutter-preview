@@ -6,17 +6,6 @@ Shows image preview in the gutter
 
 ![Demonstrating svg image preview in a css file](https://raw.githubusercontent.com/kisstkondoros/gutter-preview/master/images/sample.png)
 
-## Hacking the CSS of VSCode
-Until [this](https://github.com/Microsoft/vscode/pull/6553) is not merged / fixed in an other way, the following workaround needs to be applied.
-  
-- Open file C:/Program Files (x86)/Microsoft VS Code/resources/app/out/vs/workbench/workbench.main.css
-- Insert this at the end:
-```css
-.monaco-editor .margin-view-overlays .cgmr {
-  background-size: contain !important;
-}
-``` 
-
 ## Install
 
 [How to install Visual Studio Code extensions](https://code.visualstudio.com/docs/editor/extension-gallery)
@@ -24,6 +13,8 @@ Until [this](https://github.com/Microsoft/vscode/pull/6553) is not merged / fixe
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+ - 0.2.2
+   - Hack is now unnecessary it was removed from the readme
  - 0.2.1
    - Readme updated  
  - 0.2.0 
