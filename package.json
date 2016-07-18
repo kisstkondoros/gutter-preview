@@ -5,11 +5,11 @@
   "author": "Tamas Kiss",
   "publisher": "kisstkondoros",
   "license": "MIT",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "displayName": "Gutter preview",
   "icon": "images/logo.png",
   "engines": {
-    "vscode": "1.3.x"
+    "vscode": "^1.3.x"
   },
   "repository": {
     "type": "git",
