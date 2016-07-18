@@ -13,6 +13,8 @@ Shows image preview in the gutter
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+ - 0.3.0
+   - Support data URI's in hover widget
  - 0.2.3
    - VSCode engine dependency changed to allow further versions
  - 0.2.2

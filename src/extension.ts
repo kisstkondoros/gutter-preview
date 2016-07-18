@@ -13,8 +13,16 @@ const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp'];
 
 const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
   if (absoluteImagePath) {
-    let absolutePath = path.parse(absoluteImagePath);
-    let isExtensionSupported = acceptedExtensions.some((ext) => absolutePath.ext && absolutePath.ext.toLowerCase() === ext);
+    let isDataUri = absoluteImagePath.indexOf("data:image") == 0;
+    let isExtensionSupported: boolean;
+
+    if (isDataUri) {
+      isExtensionSupported = true;
+    } else {
+      let absolutePath = path.parse(absoluteImagePath);
+      isExtensionSupported = acceptedExtensions.some((ext) => absolutePath.ext && absolutePath.ext.toLowerCase() === ext);
+    }
+
     if (isExtensionSupported) {
       let decorations: vscode.DecorationOptions[] = [];
       decorations.push({
@@ -50,6 +58,17 @@ interface ImagePathRecognizer {
 interface AbsoluteUrlMapper {
   map(editor, imagePath);
 }
+
+const dataUrlMapper: AbsoluteUrlMapper = {
+  map(editor, imagePath) {
+    let absoluteImagePath: string;
+    if (imagePath.indexOf("data:image") === 0) {
+        absoluteImagePath = imagePath;
+    }
+    return absoluteImagePath;
+  }
+}
+
 const simpleUrlMapper: AbsoluteUrlMapper = {
   map(editor, imagePath) {
     let absoluteImagePath: string;
@@ -89,7 +108,7 @@ const nonNull = (item: string) => {
 }
 
 const recognizers: ImagePathRecognizer[] = [urlRecognizer];
-const absoluteUrlMappers: AbsoluteUrlMapper[] = [simpleUrlMapper, relativeToOpenFileUrlMapper, relativeToWorkspaceRootFileUrlMapper];
+const absoluteUrlMappers: AbsoluteUrlMapper[] = [dataUrlMapper, simpleUrlMapper, relativeToOpenFileUrlMapper, relativeToWorkspaceRootFileUrlMapper];
 
 const collectEntries = (editor:vscode.TextEditor, lastScanResult) => {
   var max = editor.document.lineCount;
