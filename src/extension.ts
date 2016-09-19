@@ -63,7 +63,7 @@ const dataUrlMapper: AbsoluteUrlMapper = {
   map(editor, imagePath) {
     let absoluteImagePath: string;
     if (imagePath.indexOf("data:image") === 0) {
-        absoluteImagePath = imagePath;
+      absoluteImagePath = imagePath;
     }
     return absoluteImagePath;
   }
@@ -86,7 +86,7 @@ const simpleUrlMapper: AbsoluteUrlMapper = {
 const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
   map(editor, imagePath) {
     let absoluteImagePath: string;
-    let testImagePath = path.join(editor.document.fileName,'../' + imagePath);
+    let testImagePath = path.join(editor.document.fileName, '../' + imagePath);
     if (fs.existsSync(testImagePath)) {
       absoluteImagePath = testImagePath;
     }
@@ -112,7 +112,7 @@ const nonNull = (item: string) => {
 const recognizers: ImagePathRecognizer[] = [urlRecognizer];
 const absoluteUrlMappers: AbsoluteUrlMapper[] = [dataUrlMapper, simpleUrlMapper, relativeToOpenFileUrlMapper, relativeToWorkspaceRootFileUrlMapper];
 
-const collectEntries = (editor:vscode.TextEditor, lastScanResult) => {
+const collectEntries = (editor: vscode.TextEditor, lastScanResult) => {
   var max = editor.document.lineCount;
   for (var lineIndex = 0; lineIndex < max; lineIndex++) {
     var lineObject = editor.document.lineAt(lineIndex);
