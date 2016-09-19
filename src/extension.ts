@@ -72,7 +72,9 @@ const dataUrlMapper: AbsoluteUrlMapper = {
 const simpleUrlMapper: AbsoluteUrlMapper = {
   map(editor, imagePath) {
     let absoluteImagePath: string;
-    if (path.isAbsolute(imagePath)) {
+    if (imagePath.indexOf("http") == 0) {
+      absoluteImagePath = imagePath;
+    } else if (path.isAbsolute(imagePath)) {
       if (fs.existsSync(imagePath)) {
         absoluteImagePath = imagePath;
       }
