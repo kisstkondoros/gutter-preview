@@ -26,7 +26,8 @@
   "activationEvents":[ 
     "onLanguage:css",
     "onLanguage:less",
-    "onLanguage:scss"
+    "onLanguage:scss",
+    "onLanguage:html"
   ],
   "main": "./out/extension",
   "scripts": {
