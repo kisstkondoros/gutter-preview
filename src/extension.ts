@@ -120,7 +120,9 @@ const collectEntries = (editor: vscode.TextEditor, lastScanResult) => {
     let recognizedImages = recognizers.map(recognizer => recognizer.recognize(editor, line)).filter(item => nonNull(item));
     recognizedImages.forEach((imagePath) => {
       let absoluteUrls = absoluteUrlMappers.map(mapper => mapper.map(editor, imagePath)).filter(item => nonNull(item));
-      absoluteUrls.forEach((absoluteImagePath) => {
+      let absoluteUrlsSet = new Set(absoluteUrls);
+
+      absoluteUrlsSet.forEach((absoluteImagePath) => {
         appendImagePath(absoluteImagePath, lineIndex, lastScanResult)
       });
     });
