@@ -22,7 +22,7 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
       let absolutePath = path.parse(absoluteImagePath);
       isExtensionSupported = acceptedExtensions.some((ext) => absolutePath.ext && absolutePath.ext.toLowerCase() === ext);
     }
-
+    absoluteImagePath = absoluteImagePath.replace(/\\/gm, '/');
     if (isExtensionSupported) {
       let decorations: vscode.DecorationOptions[] = [];
       decorations.push({
