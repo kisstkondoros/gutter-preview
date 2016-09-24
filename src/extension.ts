@@ -57,6 +57,7 @@ interface ImagePathRecognizer {
 }
 interface AbsoluteUrlMapper {
   map(editor, imagePath);
+  refreshConfig();
 }
 
 const dataUrlMapper: AbsoluteUrlMapper = {
@@ -66,6 +67,9 @@ const dataUrlMapper: AbsoluteUrlMapper = {
       absoluteImagePath = imagePath;
     }
     return absoluteImagePath;
+  },
+  refreshConfig() {
+
   }
 }
 
@@ -80,6 +84,8 @@ const simpleUrlMapper: AbsoluteUrlMapper = {
       }
     }
     return absoluteImagePath;
+  },
+  refreshConfig() {
   }
 }
 
@@ -91,19 +97,31 @@ const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
       absoluteImagePath = testImagePath;
     }
     return absoluteImagePath;
+  },
+  refreshConfig() {
   }
 }
-
-const relativeToWorkspaceRootFileUrlMapper: AbsoluteUrlMapper = {
+class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
+  private additionalSourceFolder: string = "";
   map(editor, imagePath) {
     let absoluteImagePath: string;
     let testImagePath = path.join(vscode.workspace.rootPath, imagePath);
     if (fs.existsSync(testImagePath)) {
       absoluteImagePath = testImagePath;
+    } else {
+      let testImagePath = path.join(vscode.workspace.rootPath, this.additionalSourceFolder, imagePath);
+      if (fs.existsSync(testImagePath)) {
+        absoluteImagePath = testImagePath;
+      }
     }
     return absoluteImagePath;
   }
+  refreshConfig() {
+    this.additionalSourceFolder = vscode.workspace.getConfiguration('gutterpreview').get('sourcefolder', "");
+  }
+
 }
+const relativeToWorkspaceRootFileUrlMapper: AbsoluteUrlMapper = new RelativeToWorkspaceRootFileUrlMapper();
 
 const nonNull = (item: string) => {
   return !(item == null || item == undefined || item.length == 0);
@@ -117,6 +135,7 @@ const collectEntries = (editor: vscode.TextEditor, lastScanResult) => {
   for (var lineIndex = 0; lineIndex < max; lineIndex++) {
     var lineObject = editor.document.lineAt(lineIndex);
     var line = lineObject.text;
+    absoluteUrlMappers.forEach(absoluteUrlMapper => absoluteUrlMapper.refreshConfig());
     let recognizedImages = recognizers.map(recognizer => recognizer.recognize(editor, line)).filter(item => nonNull(item));
     recognizedImages.forEach((imagePath) => {
       let absoluteUrls = absoluteUrlMappers.map(mapper => mapper.map(editor, imagePath)).filter(item => nonNull(item));

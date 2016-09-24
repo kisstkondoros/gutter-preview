@@ -29,6 +29,19 @@
     "onLanguage:scss",
     "onLanguage:html"
   ],
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Gutter Preview configuration",
+      "properties": {
+        "gutterpreview.sourcefolder": {
+          "default": "",
+          "description": "Additional folder to consider when resolving relative urls",
+          "type": "string"
+        }
+      }
+    }
+  },
   "main": "./out/extension",
   "scripts": {
     "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
