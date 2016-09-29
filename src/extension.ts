@@ -9,7 +9,7 @@ interface Decoration {
   absoluteImagePath: string;
 }
 
-const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp'];
+const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp', '.gif'];
 
 const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
   if (absoluteImagePath) {
@@ -29,11 +29,16 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
         range: new vscode.Range(lineIndex, 0, lineIndex, 0),
         hoverMessage: ""
       });
+      var uri = absoluteImagePath;
+      var [major, minor, patch] = vscode.version.split('.').map(v=>parseInt(v));
+      if (major > 1 || (major == 1 && minor > 5)) {
+        uri = vscode.Uri.parse(absoluteImagePath);
+      }
       let decorationRenderOptions: vscode.DecorationRenderOptions = {
-        gutterIconPath: absoluteImagePath,
+        gutterIconPath: uri,
         gutterIconSize: 'contain'
       };
-      let textEditorDecorationType: vscode.TextEditorDecorationType = vscode.window.createTextEditorDecorationType(decorationRenderOptions);
+      let textEditorDecorationType: vscode.TextEditorDecorationType = vscode.window.createTextEditorDecorationType(<any>decorationRenderOptions);
       lastScanResult.push({ textEditorDecorationType, decorations, absoluteImagePath });
     }
   }
