@@ -46,7 +46,7 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
 
 const urlRecognizer: ImagePathRecognizer = {
   recognize: (editor, line) => {
-    let imageUrls: RegExp = /url\('?"?(.*?)'?"?\)/igm;
+    let imageUrls: RegExp = /url\('?"?([^'"]*)'?"?\)/igm;
     let match = imageUrls.exec(line);
     let imagePath: string
 
@@ -59,7 +59,7 @@ const urlRecognizer: ImagePathRecognizer = {
 
 const imgSrcRecognizer: ImagePathRecognizer = {
   recognize: (editor, line) => {
-    let imageUrls: RegExp = /src=['"]{1}(.*)['"]{1}/igm;
+    let imageUrls: RegExp = /src=['"]{1}([^'"]*)['"]{1}/igm;
     let match = imageUrls.exec(line);
     let imagePath: string
 
