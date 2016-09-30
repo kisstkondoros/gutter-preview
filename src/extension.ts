@@ -216,7 +216,8 @@ export function activate(context) {
     }
   }
   disposables.push(vscode.languages.registerHoverProvider(['html', 'css', 'less', 'sass', 'scss'], hoverProvider));
-  vscode.workspace.onDidChangeTextDocument(throttledScan)
+  vscode.workspace.onDidChangeTextDocument(throttledScan);
+  vscode.window.onDidChangeActiveTextEditor(throttledScan);
   vscode.workspace.onDidOpenTextDocument(() => {
     lastScanResult = [];
     throttledScan();
