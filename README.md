@@ -13,6 +13,27 @@ Shows image preview in the gutter
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+ - 0.7.1
+   - Update changelog
+ - 0.7.0
+   - Add http scheme for // urls
+ - 0.6.2
+   - Run recognition also when the activeTextEditor is changed
+   - Fix image url detection RegExp
+ - 0.6.1
+   - Support old and new RenderOptions API
+ - 0.6.0
+   - Add image src recognizer
+ - 0.5.0
+   - Added "gutterpreview.sourcefolder" configuration variable
+ - 0.4.1
+   - Add image hover provider to scss files as well
+ - 0.4.0
+   - Add html to supported file types
+   - Dedupe recognized urls
+   - Format source code
+   - Add http/https url matcher
+   - Fix file url creation
  - 0.3.0
    - Support data URI's in hover widget
  - 0.2.3
