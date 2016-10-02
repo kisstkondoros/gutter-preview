@@ -30,7 +30,7 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
         hoverMessage: ""
       });
       var uri = absoluteImagePath;
-      var [major, minor, patch] = vscode.version.split('.').map(v=>parseInt(v));
+      var [major, minor, patch] = vscode.version.split('.').map(v => parseInt(v));
       if (major > 1 || (major == 1 && minor > 5)) {
         uri = vscode.Uri.parse(absoluteImagePath);
       }
@@ -95,6 +95,8 @@ const simpleUrlMapper: AbsoluteUrlMapper = {
     let absoluteImagePath: string;
     if (imagePath.indexOf("http") == 0) {
       absoluteImagePath = imagePath;
+    } else if (imagePath.indexOf("//") == 0) {
+      absoluteImagePath = "http:" + imagePath;
     } else if (path.isAbsolute(imagePath)) {
       if (fs.existsSync(imagePath)) {
         absoluteImagePath = imagePath;
