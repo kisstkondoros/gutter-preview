@@ -10,6 +10,7 @@ interface Decoration {
 }
 
 const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp', '.gif'];
+const [major, minor, patch] = vscode.version.split('.').map(v => parseInt(v));
 
 const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
   if (absoluteImagePath) {
@@ -30,7 +31,6 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
         hoverMessage: ""
       });
       var uri = absoluteImagePath;
-      var [major, minor, patch] = vscode.version.split('.').map(v => parseInt(v));
       if (major > 1 || (major == 1 && minor > 5)) {
         uri = vscode.Uri.parse(absoluteImagePath);
       }
@@ -209,6 +209,9 @@ export function activate(context) {
         lastScanResult.forEach(item => item.decorations.forEach(dec => {
           if (range.start.line == dec.range.start.line) {
             let markedString: vscode.MarkedString = "![" + item.absoluteImagePath + "](" + item.absoluteImagePath + ")";
+            if (major > 1 || (major == 1 && minor > 7)) {
+              markedString = "![" + item.absoluteImagePath + "](" + item.absoluteImagePath + "|height=100)";
+            }
             resultset.push(markedString);
           }
         }));
