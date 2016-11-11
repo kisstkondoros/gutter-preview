@@ -1,6 +1,6 @@
-# Gutter Preview - Visual Studio Code Extension
+# Image Preview - Visual Studio Code Extension
 
-Shows image preview in the gutter
+Shows image preview in the gutter and on hover
 
 ## It looks like this
 
@@ -13,6 +13,11 @@ Shows image preview in the gutter
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+ - 0.8.0
+  - Change Extension name to Image Preview
+  - Add option ("showimagepreviewongutter") to disable image preview on the gutter
+ - 0.7.2
+   - Set image height on supported vscode versions
  - 0.7.1
    - Update changelog
  - 0.7.0

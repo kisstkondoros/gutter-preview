@@ -1,12 +1,12 @@
 {
   "name": "vscode-gutter-preview",
   "private": true,
-  "description": "Shows image preview in the gutter",
+  "description": "Shows image preview in the gutter and on hover",
   "author": "Tamas Kiss",
   "publisher": "kisstkondoros",
   "license": "MIT",
   "version": "0.7.2",
-  "displayName": "Gutter preview",
+  "displayName": "Image preview",
   "icon": "images/logo.png",
   "engines": {
     "vscode": "^1.3.x"
@@ -32,7 +32,7 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Gutter Preview configuration",
+      "title": "Image Preview configuration",
       "properties": {
         "gutterpreview.sourcefolder": {
           "default": "src",
