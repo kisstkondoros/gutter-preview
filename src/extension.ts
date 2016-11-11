@@ -136,7 +136,8 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
     return absoluteImagePath;
   }
   refreshConfig() {
-    this.additionalSourceFolder = vscode.workspace.getConfiguration('gutterpreview').get('sourcefolder', "");
+    const config = vscode.workspace.getConfiguration('gutterpreview');
+    this.additionalSourceFolder = config.get('sourcefolder', "");
   }
 
 }
@@ -175,10 +176,14 @@ const clearEditor = (editor, lastScanResult) => {
 };
 
 const updateEditor = (editor, lastScanResult) => {
-  lastScanResult.forEach(element => {
-    let {textEditorDecorationType, decorations, absoluteImagePath} = element;
-    vscode.window.activeTextEditor.setDecorations(textEditorDecorationType, decorations);
-  });
+  const config = vscode.workspace.getConfiguration('gutterpreview');
+  const showImagePreviewOnGutter = config.get('showimagepreviewongutter', true);
+  if (showImagePreviewOnGutter) {
+    lastScanResult.forEach(element => {
+      let {textEditorDecorationType, decorations, absoluteImagePath} = element;
+      vscode.window.activeTextEditor.setDecorations(textEditorDecorationType, decorations);
+    });
+  }
 };
 
 export function activate(context) {
