@@ -35,7 +35,7 @@
       "title": "Gutter Preview configuration",
       "properties": {
         "gutterpreview.sourcefolder": {
-          "default": "",
+          "default": "src",
           "description": "Additional folder to consider when resolving relative urls",
           "type": "string"
         }
