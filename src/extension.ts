@@ -21,9 +21,10 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
       isExtensionSupported = true;
     } else {
       let absolutePath = path.parse(absoluteImagePath);
-      isExtensionSupported = acceptedExtensions.some((ext) => absolutePath.ext && absolutePath.ext.toLowerCase() === ext);
+      isExtensionSupported = acceptedExtensions.some((ext) => absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext));
     }
     absoluteImagePath = absoluteImagePath.replace(/\\/gm, '/');
+    absoluteImagePath = absoluteImagePath.replace(/\|(width=\d*)?(height=\d*)?/gm, '')
     if (isExtensionSupported) {
       let decorations: vscode.DecorationOptions[] = [];
       decorations.push({
@@ -41,6 +42,20 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
       let textEditorDecorationType: vscode.TextEditorDecorationType = vscode.window.createTextEditorDecorationType(<any>decorationRenderOptions);
       lastScanResult.push({ textEditorDecorationType, decorations, absoluteImagePath });
     }
+  }
+}
+
+const markdownRecognizer: ImagePathRecognizer = {
+  recognize: (editor: vscode.TextEditor, line) => {
+    let imagePath: string;
+    if (editor.document.languageId == "markdown") {
+      let imageUrls: RegExp = /\((.*)\)/igm;
+      let match = imageUrls.exec(line);
+      if (match && match.length > 1) {
+        imagePath = match[1];
+      }
+    }
+    return imagePath;
   }
 }
 
@@ -70,7 +85,7 @@ const imgSrcRecognizer: ImagePathRecognizer = {
   }
 }
 interface ImagePathRecognizer {
-  recognize(editor, line);
+  recognize(editor: vscode.TextEditor, line);
 }
 interface AbsoluteUrlMapper {
   map(editor, imagePath);
@@ -147,7 +162,7 @@ const nonNull = (item: string) => {
   return !(item == null || item == undefined || item.length == 0);
 }
 
-const recognizers: ImagePathRecognizer[] = [urlRecognizer, imgSrcRecognizer];
+const recognizers: ImagePathRecognizer[] = [markdownRecognizer, urlRecognizer, imgSrcRecognizer];
 const absoluteUrlMappers: AbsoluteUrlMapper[] = [dataUrlMapper, simpleUrlMapper, relativeToOpenFileUrlMapper, relativeToWorkspaceRootFileUrlMapper];
 
 const collectEntries = (editor: vscode.TextEditor, lastScanResult) => {
@@ -225,7 +240,7 @@ export function activate(context) {
       return result;
     }
   }
-  disposables.push(vscode.languages.registerHoverProvider(['html', 'css', 'less', 'sass', 'scss'], hoverProvider));
+  disposables.push(vscode.languages.registerHoverProvider(['markdown','html', 'css', 'less', 'sass', 'scss'], hoverProvider));
   vscode.workspace.onDidChangeTextDocument(throttledScan);
   vscode.window.onDidChangeActiveTextEditor(throttledScan);
   vscode.workspace.onDidOpenTextDocument(() => {
