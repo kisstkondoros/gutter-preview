@@ -139,13 +139,15 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
   private additionalSourceFolder: string = "";
   map(editor, imagePath) {
     let absoluteImagePath: string;
-    let testImagePath = path.join(vscode.workspace.rootPath, imagePath);
-    if (fs.existsSync(testImagePath)) {
-      absoluteImagePath = testImagePath;
-    } else {
-      let testImagePath = path.join(vscode.workspace.rootPath, this.additionalSourceFolder, imagePath);
+    if (vscode.workspace && vscode.workspace.rootPath) {
+      let testImagePath = path.join(vscode.workspace.rootPath, imagePath);
       if (fs.existsSync(testImagePath)) {
         absoluteImagePath = testImagePath;
+      } else {
+        let testImagePath = path.join(vscode.workspace.rootPath, this.additionalSourceFolder, imagePath);
+        if (fs.existsSync(testImagePath)) {
+          absoluteImagePath = testImagePath;
+        }
       }
     }
     return absoluteImagePath;
@@ -240,7 +242,7 @@ export function activate(context) {
       return result;
     }
   }
-  disposables.push(vscode.languages.registerHoverProvider(['markdown','html', 'css', 'less', 'sass', 'scss'], hoverProvider));
+  disposables.push(vscode.languages.registerHoverProvider(['markdown', 'html', 'css', 'less', 'sass', 'scss'], hoverProvider));
   vscode.workspace.onDidChangeTextDocument(throttledScan);
   vscode.window.onDidChangeActiveTextEditor(throttledScan);
   vscode.workspace.onDidOpenTextDocument(() => {

@@ -13,9 +13,13 @@ Shows image preview in the gutter and on hover
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+ - 0.9.1
+   - Ignore workspace relative url mapper when there is no workspace at all
+ - 0.9.0
+   - Support images in markdown files
  - 0.8.0
-  - Change Extension name to Image Preview
-  - Add option ("showimagepreviewongutter") to disable image preview on the gutter
+   - Change Extension name to Image Preview
+   - Add option ("showimagepreviewongutter") to disable image preview on the gutter
  - 0.7.2
    - Set image height on supported vscode versions
  - 0.7.1
