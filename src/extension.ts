@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
-import {Disposable, DocumentSelector, languages, commands} from 'vscode';
+import { Disposable, DocumentSelector, languages, commands } from 'vscode';
 import * as path from 'path';
+import * as url from 'url';
 import * as fs from 'fs';
+import * as probe from 'probe-image-size';
 
 interface Decoration {
   textEditorDecorationType: vscode.TextEditorDecorationType;
@@ -187,7 +189,7 @@ const collectEntries = (editor: vscode.TextEditor, lastScanResult) => {
 
 const clearEditor = (editor, lastScanResult) => {
   lastScanResult.forEach(element => {
-    let {textEditorDecorationType, decorations, absoluteImagePath} = element;
+    let { textEditorDecorationType, decorations, absoluteImagePath } = element;
     vscode.window.activeTextEditor.setDecorations(textEditorDecorationType, []);
   });
 };
@@ -197,7 +199,7 @@ const updateEditor = (editor, lastScanResult) => {
   const showImagePreviewOnGutter = config.get('showimagepreviewongutter', true);
   if (showImagePreviewOnGutter) {
     lastScanResult.forEach(element => {
-      let {textEditorDecorationType, decorations, absoluteImagePath} = element;
+      let { textEditorDecorationType, decorations, absoluteImagePath } = element;
       vscode.window.activeTextEditor.setDecorations(textEditorDecorationType, decorations);
     });
   }
@@ -223,25 +225,38 @@ export function activate(context) {
     }
   };
   let hoverProvider = {
-    provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.Hover {
+    provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.Hover> {
       let range = document.getWordRangeAtPosition(position);
-      let result: vscode.Hover = undefined;
+      let result: Thenable<vscode.Hover> = undefined;
       if (range) {
-        let resultset: vscode.MarkedString[] = [];
-        lastScanResult.forEach(item => item.decorations.forEach(dec => {
-          if (range.start.line == dec.range.start.line) {
-            let markedString: vscode.MarkedString = "![" + item.absoluteImagePath + "](" + item.absoluteImagePath + ")";
-            if (major > 1 || (major == 1 && minor > 7)) {
+        if (major > 1 || (major == 1 && minor > 7)) {
+          lastScanResult.forEach(item => item.decorations.forEach(dec => {
+            if (range.start.line == dec.range.start.line) {
+              let markedString: vscode.MarkedString = "![" + item.absoluteImagePath + "](" + item.absoluteImagePath + ")";
+
               markedString = "![" + item.absoluteImagePath + "](" + item.absoluteImagePath + "|height=100)";
+              var target = url.parse(item.absoluteImagePath);
+              var fallback = err => {
+                let resultset: vscode.MarkedString[] = [markedString];
+                return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+              };
+              var imageWithSize = result => {
+                markedString += `  \r\n${result.width}x${result.height}`;
+                let resultset: vscode.MarkedString[] = [markedString];
+                return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+              };
+              if (target.protocol.startsWith("http")) {
+                result = probe(target.href).then(imageWithSize, fallback);
+              } else {
+                result = probe(fs.createReadStream(item.absoluteImagePath)).then(imageWithSize, fallback);
+              }
             }
-            resultset.push(markedString);
-          }
-        }));
-        result = new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+          }));
+        }
       }
       return result;
     }
-  }
+  };
   disposables.push(vscode.languages.registerHoverProvider(['*'], hoverProvider));
   vscode.workspace.onDidChangeTextDocument(throttledScan);
   vscode.window.onDidChangeActiveTextEditor(throttledScan);
