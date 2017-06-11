@@ -242,7 +242,7 @@ export function activate(context) {
       return result;
     }
   }
-  disposables.push(vscode.languages.registerHoverProvider(['markdown', 'html', 'css', 'less', 'sass', 'scss'], hoverProvider));
+  disposables.push(vscode.languages.registerHoverProvider(['*'], hoverProvider));
   vscode.workspace.onDidChangeTextDocument(throttledScan);
   vscode.window.onDidChangeActiveTextEditor(throttledScan);
   vscode.workspace.onDidOpenTextDocument(() => {
