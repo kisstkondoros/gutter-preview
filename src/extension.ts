@@ -128,7 +128,7 @@ const simpleUrlMapper: AbsoluteUrlMapper = {
 const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
   map(editor, imagePath) {
     let absoluteImagePath: string;
-    let testImagePath = path.join(editor.document.fileName, '../' + imagePath);
+    let testImagePath = path.join(editor.document.fileName, '..', imagePath);
     if (fs.existsSync(testImagePath)) {
       absoluteImagePath = testImagePath;
     }
