@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
 import * as probe from 'probe-image-size';
+var base64Img = require('base64-img');
 
 interface Decoration {
   textEditorDecorationType: vscode.TextEditorDecorationType;
@@ -13,6 +14,7 @@ interface Decoration {
 
 const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp', '.gif'];
 const [major, minor, patch] = vscode.version.split('.').map(v => parseInt(v));
+let fallbackImage = undefined;
 
 const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
   if (absoluteImagePath) {
@@ -36,6 +38,9 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
       var uri = absoluteImagePath;
       if (major > 1 || (major == 1 && minor > 5)) {
         uri = vscode.Uri.parse(absoluteImagePath);
+      }
+      if (fallbackImage && absoluteImagePath.startsWith("http:")) {
+        uri = fallbackImage.replace(/\\/gm, '/');
       }
       let decorationRenderOptions: vscode.DecorationRenderOptions = {
         gutterIconPath: uri,
@@ -205,7 +210,8 @@ const updateEditor = (editor, lastScanResult) => {
   }
 };
 
-export function activate(context) {
+export function activate(context: vscode.ExtensionContext) {
+  fallbackImage = context.asAbsolutePath("images/logo.png");
   let disposables: Disposable[] = [];
   let lastScanResult: Decoration[] = [];
   let throttleId = undefined;
@@ -230,28 +236,47 @@ export function activate(context) {
       let result: Thenable<vscode.Hover> = undefined;
       if (range) {
         if (major > 1 || (major == 1 && minor > 7)) {
-          lastScanResult.forEach(item => item.decorations.forEach(dec => {
-            if (range.start.line == dec.range.start.line) {
-              let markedString: vscode.MarkedString = "![" + item.absoluteImagePath + "](" + item.absoluteImagePath + ")";
-
-              markedString = "![" + item.absoluteImagePath + "](" + item.absoluteImagePath + "|height=100)";
-              var target = url.parse(item.absoluteImagePath);
-              var fallback = err => {
-                let resultset: vscode.MarkedString[] = [markedString];
-                return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
-              };
-              var imageWithSize = result => {
-                markedString += `  \r\n${result.width}x${result.height}`;
-                let resultset: vscode.MarkedString[] = [markedString];
-                return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
-              };
-              if (target.protocol.startsWith("http")) {
-                result = probe(target.href).then(imageWithSize, fallback);
-              } else {
-                result = probe(fs.createReadStream(item.absoluteImagePath)).then(imageWithSize, fallback);
-              }
+          const matchingDecoratorAndItem = lastScanResult.map(item => {
+            return {
+              item: item,
+              decoration: item.decorations.find(dec => range.start.line == dec.range.start.line)
             }
-          }));
+          }).find(pair => pair.decoration != null);
+
+          if (matchingDecoratorAndItem) {
+            const item = matchingDecoratorAndItem.item;
+            const dec = matchingDecoratorAndItem.decoration;
+            let markedString: vscode.MarkedString = "![" + item.absoluteImagePath + "](" + item.absoluteImagePath + "|height=100)";
+            var target = url.parse(item.absoluteImagePath);
+            var fallback = (markedString) => {
+              let resultset: vscode.MarkedString[] = [markedString];
+              return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+            };
+            var imageWithSize = (markedString, result) => {
+              let resultset: vscode.MarkedString[] = [markedString + `  \r\n${result.width}x${result.height}`];
+              return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+            };
+            if (target.protocol.startsWith("http")) {
+              const sizeCheck = probe(target.href);
+              if (target.protocol.startsWith("https")) {
+                result = sizeCheck.then((result) => imageWithSize(markedString, result), () => fallback(markedString));
+              } else {
+                result = new Promise((resolve, reject) => {
+                  base64Img.requestBase64(target.href, function (err, res, data) {
+                    if (err) {
+                      resolve(fallback(markedString));
+                    } else {
+                      markedString = "![" + item.absoluteImagePath + "](" + data + "|height=100)";
+                      resolve(sizeCheck.then((result) => imageWithSize(markedString, result), () => fallback(markedString)));
+                    }
+                  })
+                })
+
+              }
+            } else {
+              result = probe(fs.createReadStream(item.absoluteImagePath)).then((result) => imageWithSize(markedString, result), () => fallback(markedString));
+            }
+          }
         }
       }
       return result;

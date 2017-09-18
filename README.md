@@ -13,6 +13,8 @@ Shows image preview in the gutter and on hover
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+ - 0.10.2
+   - Provide fallback for http hosted images
  - 0.10.1
    - Attempt to fix path join on macOS Sierra
  - 0.10.0
