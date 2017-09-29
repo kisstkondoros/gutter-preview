@@ -91,6 +91,20 @@ const imgSrcRecognizer: ImagePathRecognizer = {
     return imagePath;
   }
 }
+
+const pythonRecognizer : ImagePathRecognizer = {
+  recognize: (editor, line) => {
+    let imageUrls: RegExp = /['"]{1}(.*\.[\w]{3})['"]{1}/igm;
+    let match = imageUrls.exec(line);
+    let imagePath: string
+
+    if (match && match.length > 1) {
+      imagePath = match[1];
+    }
+    return imagePath;
+  }
+}
+
 interface ImagePathRecognizer {
   recognize(editor: vscode.TextEditor, line);
 }
@@ -171,7 +185,7 @@ const nonNull = (item: string) => {
   return !(item == null || item == undefined || item.length == 0);
 }
 
-const recognizers: ImagePathRecognizer[] = [markdownRecognizer, urlRecognizer, imgSrcRecognizer];
+const recognizers: ImagePathRecognizer[] = [markdownRecognizer, urlRecognizer, imgSrcRecognizer, pythonRecognizer];
 const absoluteUrlMappers: AbsoluteUrlMapper[] = [dataUrlMapper, simpleUrlMapper, relativeToOpenFileUrlMapper, relativeToWorkspaceRootFileUrlMapper];
 
 const collectEntries = (editor: vscode.TextEditor, lastScanResult) => {

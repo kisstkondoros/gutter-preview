@@ -28,7 +28,8 @@
     "onLanguage:less",
     "onLanguage:scss",
     "onLanguage:html",
-    "onLanguage:markdown"
+    "onLanguage:markdown",
+    "onLanguage:python"
   ],
   "contributes": {
     "configuration": {
