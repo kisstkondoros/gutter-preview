@@ -27,7 +27,6 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
       let absolutePath = path.parse(absoluteImagePath);
       isExtensionSupported = acceptedExtensions.some((ext) => absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext));
     }
-    absoluteImagePath = absoluteImagePath.replace(/\\/gm, '/');
     absoluteImagePath = absoluteImagePath.replace(/\|(width=\d*)?(height=\d*)?/gm, '')
     if (isExtensionSupported) {
       let decorations: vscode.DecorationOptions[] = [];
@@ -40,7 +39,7 @@ const appendImagePath = (absoluteImagePath, lineIndex, lastScanResult) => {
         uri = vscode.Uri.parse(absoluteImagePath);
       }
       if (fallbackImage && absoluteImagePath.startsWith("http:")) {
-        uri = fallbackImage.replace(/\\/gm, '/');
+        uri = fallbackImage;
       }
       let decorationRenderOptions: vscode.DecorationRenderOptions = {
         gutterIconPath: uri,
