@@ -13,6 +13,12 @@ Shows image preview in the gutter and on hover
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+ - 0.11.2
+   - Updated the python regex to account for lines with multiple strings
+ - 0.11.1
+   - Remove path separator replacements
+ - 0.11.0
+   -  Added a python image filename recognizer
  - 0.10.2
    - Provide fallback for http hosted images
  - 0.10.1
