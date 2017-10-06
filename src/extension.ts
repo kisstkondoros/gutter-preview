@@ -93,7 +93,7 @@ const imgSrcRecognizer: ImagePathRecognizer = {
 
 const pythonRecognizer : ImagePathRecognizer = {
   recognize: (editor, line) => {
-    let imageUrls: RegExp = /['"]{1}(.*\.[\w]{3})['"]{1}/igm;
+    let imageUrls: RegExp = /['"]{1}([^'"]+\.[\w]{3})['"]{1}/igm;
     let match = imageUrls.exec(line);
     let imagePath: string
 
