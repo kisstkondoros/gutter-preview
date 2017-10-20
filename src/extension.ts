@@ -269,7 +269,7 @@ export function activate(context: vscode.ExtensionContext) {
               let resultset: vscode.MarkedString[] = [markedString + `  \r\n${result.width}x${result.height}`];
               return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
             };
-            if (target.protocol.startsWith("http")) {
+            if (target.protocol && target.protocol.startsWith("http")) {
               const sizeCheck = probe(target.href);
               if (target.protocol.startsWith("https")) {
                 result = sizeCheck.then((result) => imageWithSize(markedString, result), () => fallback(markedString));
