@@ -13,6 +13,8 @@ Shows image preview in the gutter and on hover
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+ - 0.12.0
+   - Avoid file locks by using temp files
  - 0.11.4
    - Support lookup in template strings
  - 0.11.3
