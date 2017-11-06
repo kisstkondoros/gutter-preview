@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
   let imageCache: Map<String, Thenable<string>> = new Map();
 
   const markdownRecognizer: ImagePathRecognizer = {
-    recognize: (editor: vscode.TextEditor, line) => {
+    recognize: (editor: vscode.TextEditor, line: string) => {
       let imagePath: string;
       if (editor.document.languageId == "markdown") {
         let imageUrls: RegExp = /\((.*)\)/igm;
@@ -39,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   const urlRecognizer: ImagePathRecognizer = {
-    recognize: (editor, line) => {
+    recognize: (editor: vscode.TextEditor, line: string) => {
       let imageUrls: RegExp = /url\('?"?([^'"]*)'?"?\)/igm;
       let match = imageUrls.exec(line);
       let imagePath: string
@@ -52,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   const imgSrcRecognizer: ImagePathRecognizer = {
-    recognize: (editor, line) => {
+    recognize: (editor: vscode.TextEditor, line: string) => {
       let imageUrls: RegExp = /src=['"]{1}([^'"]*)['"]{1}/igm;
       let match = imageUrls.exec(line);
       let imagePath: string
@@ -65,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   const pythonRecognizer: ImagePathRecognizer = {
-    recognize: (editor, line) => {
+    recognize: (editor: vscode.TextEditor, line: string) => {
       let imageUrls: RegExp = /['`"]{1}([^'`"]+\.[\w]{3})['`"]{1}/igm;
       let match = imageUrls.exec(line);
       let imagePath: string
@@ -78,15 +78,15 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   interface ImagePathRecognizer {
-    recognize(editor: vscode.TextEditor, line);
+    recognize(editor: vscode.TextEditor, line: string);
   }
   interface AbsoluteUrlMapper {
-    map(editor, imagePath);
+    map(editor: vscode.TextEditor, imagePath: string);
     refreshConfig();
   }
 
   const dataUrlMapper: AbsoluteUrlMapper = {
-    map(editor, imagePath) {
+    map(editor: vscode.TextEditor, imagePath: string) {
       let absoluteImagePath: string;
       if (imagePath.indexOf("data:image") === 0) {
         absoluteImagePath = imagePath;
@@ -99,7 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   const simpleUrlMapper: AbsoluteUrlMapper = {
-    map(editor, imagePath) {
+    map(editor: vscode.TextEditor, imagePath: string) {
       let absoluteImagePath: string;
       if (imagePath.indexOf("http") == 0) {
         absoluteImagePath = imagePath;
@@ -117,7 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
-    map(editor, imagePath) {
+    map(editor: vscode.TextEditor, imagePath: string) {
       let absoluteImagePath: string;
       let testImagePath = path.join(editor.document.fileName, '..', imagePath);
       if (fs.existsSync(testImagePath)) {
@@ -130,7 +130,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
   class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
     private additionalSourceFolder: string = "";
-    map(editor, imagePath) {
+    map(editor: vscode.TextEditor, imagePath: string) {
       let absoluteImagePath: string;
       if (vscode.workspace && vscode.workspace.rootPath) {
         let testImagePath = path.join(vscode.workspace.rootPath, imagePath);
@@ -240,7 +240,7 @@ export function activate(context: vscode.ExtensionContext) {
                 } else {
                   const handle = fs.watch(absoluteImagePath, function fileChangeListener() {
                     handle.close();
-                    fs.unlink(path);
+                    fs.unlink(filePath, () => { });
                     imageCache.delete(absoluteImagePath);
                     throttledScan(50);
                   });
@@ -351,7 +351,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const cleanupUnusedTempFiles = () => {
     imageCache.forEach(value => {
-      value.then(tmpFile => fs.unlink(tmpFile))
+      value.then(tmpFile => fs.unlink(tmpFile, () => { }))
     })
     imageCache.clear();
   };

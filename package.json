@@ -9,7 +9,7 @@
   "displayName": "Image preview",
   "icon": "images/logo.png",
   "engines": {
-    "vscode": "^1.3.x"
+    "vscode": "^1.15.0"
   },
   "repository": {
     "type": "git",
@@ -49,16 +49,14 @@
       }
     }
   },
-  "main": "./out/extension",
+  "main": "./out/src/extension",
   "scripts": {
-    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-    "watch": "node ./node_modules/vscode/bin/compile -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "clean": "grunt clean:sourceArtifacts",
-    "compile": "grunt compile",
-    "test": "grunt test"
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
+    "@types/node": "^8.0.49",
     "@types/tmp": "0.0.33",
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
@@ -66,7 +64,7 @@
     "grunt-shell": "^1.2.1",
     "load-grunt-config": "^0.19.1",
     "typescript": "^2.3.2",
-    "vscode": " ^0.11.14"
+    "vscode": "^1.0.0"
   },
   "dependencies": {
     "base64-img": "^1.0.3",
