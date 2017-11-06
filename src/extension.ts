@@ -132,12 +132,14 @@ export function activate(context: vscode.ExtensionContext) {
     private additionalSourceFolder: string = "";
     map(editor: vscode.TextEditor, imagePath: string) {
       let absoluteImagePath: string;
-      if (vscode.workspace && vscode.workspace.rootPath) {
-        let testImagePath = path.join(vscode.workspace.rootPath, imagePath);
+      let root = vscode.workspace.getWorkspaceFolder(editor.document.uri);
+      if (root && root.uri && root.uri.fsPath) {
+        const rootPath = root.uri.fsPath;
+        let testImagePath = path.join(rootPath, imagePath);
         if (fs.existsSync(testImagePath)) {
           absoluteImagePath = testImagePath;
         } else {
-          let testImagePath = path.join(vscode.workspace.rootPath, this.additionalSourceFolder, imagePath);
+          let testImagePath = path.join(rootPath, this.additionalSourceFolder, imagePath);
           if (fs.existsSync(testImagePath)) {
             absoluteImagePath = testImagePath;
           }
@@ -193,7 +195,8 @@ export function activate(context: vscode.ExtensionContext) {
       let isExtensionSupported: boolean;
 
       if (!isDataUri) {
-        let absolutePath = path.parse(absoluteImagePath);
+        const absoluteImageUrl = url.parse(absoluteImagePath);
+        let absolutePath = path.parse(absoluteImageUrl.pathname);
         isExtensionSupported = acceptedExtensions.some((ext) => absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext));
       }
 
@@ -226,15 +229,17 @@ export function activate(context: vscode.ExtensionContext) {
             imageCache.get(absoluteImagePath).then((path) => decorate(path));
           } else {
             try {
-              const tempFile = tmp.fileSync();
-              const path = tempFile.name;
+              const absoluteImageUrl = url.parse(absoluteImagePath);
+              const tempFile = tmp.fileSync({
+                postfix: path.parse(absoluteImageUrl.pathname).ext
+              });
+              const filePath = tempFile.name;
               const promise = new Promise<string>((resolve, reject) => {
-                const absoluteImageUrl = url.parse(absoluteImagePath);
                 if (absoluteImageUrl.protocol && absoluteImageUrl.protocol.startsWith('http')) {
                   var r = request(absoluteImagePath)
                     .on('response', function (res) {
-                      r.pipe(fs.createWriteStream(path)).on('close', () => {
-                        resolve(path);
+                      r.pipe(fs.createWriteStream(filePath)).on('close', () => {
+                        resolve(filePath);
                       });
                     });
                 } else {
@@ -244,9 +249,9 @@ export function activate(context: vscode.ExtensionContext) {
                     imageCache.delete(absoluteImagePath);
                     throttledScan(50);
                   });
-                  copyFile(absoluteImagePath, path, (err) => {
+                  copyFile(absoluteImagePath, filePath, (err) => {
                     if (!err) {
-                      resolve(path)
+                      resolve(filePath)
                     }
                   });
                 }
@@ -361,6 +366,10 @@ export function activate(context: vscode.ExtensionContext) {
     cleanupUnusedTempFiles();
     throttledScan();
   });
+  vscode.workspace.onDidChangeWorkspaceFolders(e => {
+    cleanupUnusedTempFiles();
+    throttledScan();
+  })
   vscode.workspace.onDidOpenTextDocument(() => {
     lastScanResult = [];
     cleanupUnusedTempFiles();
