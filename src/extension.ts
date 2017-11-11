@@ -119,7 +119,8 @@ export function activate(context: vscode.ExtensionContext) {
   const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
     map(editor: vscode.TextEditor, imagePath: string) {
       let absoluteImagePath: string;
-      let testImagePath = path.join(editor.document.fileName, '..', imagePath);
+      const pathName = url.parse(imagePath).pathname;
+      let testImagePath = path.join(editor.document.fileName, '..', pathName);
       if (fs.existsSync(testImagePath)) {
         absoluteImagePath = testImagePath;
       }
@@ -135,11 +136,12 @@ export function activate(context: vscode.ExtensionContext) {
       let root = vscode.workspace.getWorkspaceFolder(editor.document.uri);
       if (root && root.uri && root.uri.fsPath) {
         const rootPath = root.uri.fsPath;
-        let testImagePath = path.join(rootPath, imagePath);
+        const pathName = url.parse(imagePath).pathname;
+        let testImagePath = path.join(rootPath, pathName);
         if (fs.existsSync(testImagePath)) {
           absoluteImagePath = testImagePath;
         } else {
-          let testImagePath = path.join(rootPath, this.additionalSourceFolder, imagePath);
+          let testImagePath = path.join(rootPath, this.additionalSourceFolder, pathName);
           if (fs.existsSync(testImagePath)) {
             absoluteImagePath = testImagePath;
           }
