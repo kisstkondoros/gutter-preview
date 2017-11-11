@@ -24,6 +24,8 @@
     "Other"
   ],
   "activationEvents": [
+    "onLanguage:stylable",
+    "onLanguage:stylus",
     "onLanguage:css",
     "onLanguage:less",
     "onLanguage:scss",
