@@ -315,6 +315,10 @@ export function activate(context: vscode.ExtensionContext) {
   let hoverProvider = {
     provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Thenable<vscode.Hover> {
       let range = document.getWordRangeAtPosition(position);
+      let maxHeight = vscode.workspace.getConfiguration("gutterpreview").get("imagepreviewmaxheight", 100);
+      if (maxHeight < 0) {
+        maxHeight = 100;
+      }
       let result: Thenable<vscode.Hover> = undefined;
       if (range) {
         if (major > 1 || (major == 1 && minor > 7)) {
@@ -329,8 +333,7 @@ export function activate(context: vscode.ExtensionContext) {
             const item = matchingDecoratorAndItem.item;
             const dec = matchingDecoratorAndItem.decoration;
 
-            var fallback = () => {
-              let markedString: vscode.MarkedString = "![" + item.originalImagePath + "](" + item.originalImagePath + "|height=100)"
+            var fallback = (markedString:vscode.MarkedString) => {
               let resultset: vscode.MarkedString[] = [markedString];
               return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
             };
@@ -338,11 +341,11 @@ export function activate(context: vscode.ExtensionContext) {
               let resultset: vscode.MarkedString[] = [markedString + `  \r\n${result.width}x${result.height}`];
               return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
             };
+            let markedString: vscode.MarkedString = `![${item.originalImagePath}](${item.imagePath}|height=${maxHeight})`;
             try {
-              let markedString: vscode.MarkedString = "![" + item.originalImagePath + "](" + item.imagePath + "|height=100)";
-              result = probe(fs.createReadStream(item.imagePath)).then((result) => imageWithSize(markedString, result), () => fallback());
+              result = probe(fs.createReadStream(item.imagePath)).then((result) => imageWithSize(markedString, result), () => fallback(markedString));
             } catch (error) {
-              result = Promise.resolve(fallback());
+              result = Promise.resolve(fallback(markedString));
             }
           }
         }

@@ -43,6 +43,11 @@
           "description": "Additional folder to consider when resolving relative urls",
           "type": "string"
         },
+        "gutterpreview.imagepreviewmaxheight": {
+          "default": "100",
+          "description": "The maximum height of the image preview",
+          "type": "number"
+        },
         "gutterpreview.showimagepreviewongutter": {
           "default": true,
           "description": "A flag which indicates wether the image preview should be shown on the gutter",
