@@ -13,6 +13,8 @@ Shows image preview in the gutter and on hover
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
+ - 0.13.1
+   - Avoid NPE for invalid URL's
  - 0.13.0
    - Add new configuration property 'gutterpreview.imagepreviewmaxheight'
  - 0.12.2

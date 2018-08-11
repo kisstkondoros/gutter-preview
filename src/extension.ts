@@ -120,10 +120,12 @@ export function activate(context: vscode.ExtensionContext) {
     map(editor: vscode.TextEditor, imagePath: string) {
       let absoluteImagePath: string;
       const pathName = url.parse(imagePath).pathname;
-      let testImagePath = path.join(editor.document.fileName, '..', pathName);
-      if (fs.existsSync(testImagePath)) {
-        absoluteImagePath = testImagePath;
-      }
+      if (pathName) {
+        let testImagePath = path.join(editor.document.fileName, '..', pathName);
+        if (fs.existsSync(testImagePath)) {
+          absoluteImagePath = testImagePath;
+        }
+    }
       return absoluteImagePath;
     },
     refreshConfig() {
@@ -137,13 +139,15 @@ export function activate(context: vscode.ExtensionContext) {
       if (root && root.uri && root.uri.fsPath) {
         const rootPath = root.uri.fsPath;
         const pathName = url.parse(imagePath).pathname;
-        let testImagePath = path.join(rootPath, pathName);
-        if (fs.existsSync(testImagePath)) {
-          absoluteImagePath = testImagePath;
-        } else {
-          let testImagePath = path.join(rootPath, this.additionalSourceFolder, pathName);
+        if (pathName) {
+          let testImagePath = path.join(rootPath, pathName);
           if (fs.existsSync(testImagePath)) {
             absoluteImagePath = testImagePath;
+          } else {
+            let testImagePath = path.join(rootPath, this.additionalSourceFolder, pathName);
+            if (fs.existsSync(testImagePath)) {
+              absoluteImagePath = testImagePath;
+            }
           }
         }
       }
@@ -158,7 +162,7 @@ export function activate(context: vscode.ExtensionContext) {
   const relativeToWorkspaceRootFileUrlMapper: AbsoluteUrlMapper = new RelativeToWorkspaceRootFileUrlMapper();
 
   const nonNull = (item: string) => {
-    return !(item == null || item == undefined || item.length == 0);
+    return !(item == null || item == undefined || item.trim().length == 0);
   }
 
   const recognizers: ImagePathRecognizer[] = [markdownRecognizer, urlRecognizer, imgSrcRecognizer, pythonRecognizer];
@@ -174,7 +178,12 @@ export function activate(context: vscode.ExtensionContext) {
       absoluteUrlMappers.forEach(absoluteUrlMapper => absoluteUrlMapper.refreshConfig());
       let recognizedImages = recognizers.map(recognizer => recognizer.recognize(editor, line)).filter(item => nonNull(item));
       recognizedImages.forEach((imagePath) => {
-        let absoluteUrls = absoluteUrlMappers.map(mapper => mapper.map(editor, imagePath)).filter(item => nonNull(item));
+        let absoluteUrls = absoluteUrlMappers.map(mapper => {
+          try {
+            return mapper.map(editor, imagePath);
+          } catch(e) {
+          }
+        }).filter(item => nonNull(item));
         let absoluteUrlsSet = new Set(absoluteUrls);
 
         absoluteUrlsSet.forEach((absoluteImagePath) => {
@@ -198,8 +207,10 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (!isDataUri) {
         const absoluteImageUrl = url.parse(absoluteImagePath);
-        let absolutePath = path.parse(absoluteImageUrl.pathname);
-        isExtensionSupported = acceptedExtensions.some((ext) => absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext));
+        if (absoluteImageUrl.pathname) {
+          let absolutePath = path.parse(absoluteImageUrl.pathname);
+          isExtensionSupported = acceptedExtensions.some((ext) => absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext));
+        }
       }
 
       absoluteImagePath = absoluteImagePath.replace(/\|(width=\d*)?(height=\d*)?/gm, '')
@@ -233,7 +244,7 @@ export function activate(context: vscode.ExtensionContext) {
             try {
               const absoluteImageUrl = url.parse(absoluteImagePath);
               const tempFile = tmp.fileSync({
-                postfix: path.parse(absoluteImageUrl.pathname).ext
+                postfix: absoluteImageUrl.pathname ? path.parse(absoluteImageUrl.pathname).ext : "png"
               });
               const filePath = tempFile.name;
               const promise = new Promise<string>((resolve, reject) => {
