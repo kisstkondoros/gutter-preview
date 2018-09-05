@@ -24,9 +24,9 @@ export function activate(context: vscode.ExtensionContext) {
 	let imageCache: Map<String, Thenable<string>> = new Map();
 
 	const markdownRecognizer: ImagePathRecognizer = {
-		recognize: (editor: vscode.TextEditor, line: string) => {
+		recognize: (document: vscode.TextDocument, line: string) => {
 			let imagePath: string;
-			if (editor.document.languageId == "markdown") {
+			if (document.languageId == "markdown") {
 				let imageUrls: RegExp = /\((.*)\)/gim;
 				let match = imageUrls.exec(line);
 				if (match && match.length > 1) {
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	const urlRecognizer: ImagePathRecognizer = {
-		recognize: (editor: vscode.TextEditor, line: string) => {
+		recognize: (document: vscode.TextDocument, line: string) => {
 			let imageUrls: RegExp = /url\('?"?([^'"]*)'?"?\)/gim;
 			let match = imageUrls.exec(line);
 			let imagePath: string;
@@ -51,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	const imgSrcRecognizer: ImagePathRecognizer = {
-		recognize: (editor: vscode.TextEditor, line: string) => {
+		recognize: (document: vscode.TextDocument, line: string) => {
 			let imageUrls: RegExp = /src=['"]{1}([^'"]*)['"]{1}/gim;
 			let match = imageUrls.exec(line);
 			let imagePath: string;
@@ -64,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	const pythonRecognizer: ImagePathRecognizer = {
-		recognize: (editor: vscode.TextEditor, line: string) => {
+		recognize: (document: vscode.TextDocument, line: string) => {
 			let imageUrls: RegExp = /['`"]{1}([^'`"]+\.[\w]{3})['`"]{1}/gim;
 			let match = imageUrls.exec(line);
 			let imagePath: string;
@@ -77,15 +77,15 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	interface ImagePathRecognizer {
-		recognize(editor: vscode.TextEditor, line: string);
+		recognize(document: vscode.TextDocument, line: string): string;
 	}
 	interface AbsoluteUrlMapper {
-		map(editor: vscode.TextEditor, imagePath: string);
+		map(document: vscode.TextDocument, imagePath: string): string;
 		refreshConfig();
 	}
 
 	const dataUrlMapper: AbsoluteUrlMapper = {
-		map(editor: vscode.TextEditor, imagePath: string) {
+		map(document: vscode.TextDocument, imagePath: string) {
 			let absoluteImagePath: string;
 			if (imagePath.indexOf("data:image") === 0) {
 				absoluteImagePath = imagePath;
@@ -96,7 +96,7 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	const simpleUrlMapper: AbsoluteUrlMapper = {
-		map(editor: vscode.TextEditor, imagePath: string) {
+		map(document: vscode.TextDocument, imagePath: string) {
 			let absoluteImagePath: string;
 			if (imagePath.indexOf("http") == 0) {
 				absoluteImagePath = imagePath;
@@ -113,11 +113,11 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
-		map(editor: vscode.TextEditor, imagePath: string) {
+		map(document: vscode.TextDocument, imagePath: string) {
 			let absoluteImagePath: string;
 			const pathName = url.parse(imagePath).pathname;
 			if (pathName) {
-				let testImagePath = path.join(editor.document.fileName, "..", pathName);
+				let testImagePath = path.join(document.fileName, "..", pathName);
 				if (fs.existsSync(testImagePath)) {
 					absoluteImagePath = testImagePath;
 				}
@@ -128,9 +128,9 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 	class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
 		private additionalSourceFolder: string = "";
-		map(editor: vscode.TextEditor, imagePath: string) {
+		map(document: vscode.TextDocument, imagePath: string) {
 			let absoluteImagePath: string;
-			let root = vscode.workspace.getWorkspaceFolder(editor.document.uri);
+			let root = vscode.workspace.getWorkspaceFolder(document.uri);
 			if (root && root.uri && root.uri.fsPath) {
 				const rootPath = root.uri.fsPath;
 				const pathName = url.parse(imagePath).pathname;
@@ -167,42 +167,58 @@ export function activate(context: vscode.ExtensionContext) {
 		relativeToWorkspaceRootFileUrlMapper
 	];
 
-	const collectEntries = (editor: vscode.TextEditor, lastScanResult) => {
-		var max = editor.document.lineCount;
+	const collectEntries = (document: vscode.TextDocument, lastScanResult) => {
+		var max = document.lineCount;
+		const editor = findEditorForDocument(document);
 		const config = vscode.workspace.getConfiguration("gutterpreview");
 		const showImagePreviewOnGutter = config.get("showimagepreviewongutter", true);
 		for (var lineIndex = 0; lineIndex < max; lineIndex++) {
-			var lineObject = editor.document.lineAt(lineIndex);
+			var lineObject = document.lineAt(lineIndex);
 			var line = lineObject.text;
 			absoluteUrlMappers.forEach(absoluteUrlMapper => absoluteUrlMapper.refreshConfig());
 			let recognizedImages = recognizers
-				.map(recognizer => recognizer.recognize(editor, line))
+				.map(recognizer => recognizer.recognize(document, line))
 				.filter(item => nonNull(item));
 			recognizedImages.forEach(imagePath => {
 				let absoluteUrls = absoluteUrlMappers
 					.map(mapper => {
 						try {
-							return mapper.map(editor, imagePath);
+							return mapper.map(document, imagePath);
 						} catch (e) {}
 					})
 					.filter(item => nonNull(item));
 				let absoluteUrlsSet = new Set(absoluteUrls);
 
 				absoluteUrlsSet.forEach(absoluteImagePath => {
-					appendImagePath(showImagePreviewOnGutter, absoluteImagePath, lineIndex, lastScanResult);
+					appendImagePath(editor, showImagePreviewOnGutter, absoluteImagePath, lineIndex, lastScanResult);
 				});
 			});
 		}
 	};
 
-	const clearEditor = (editor, lastScanResult: Decoration[]) => {
-		lastScanResult.forEach(element => {
-			let { textEditorDecorationType, decorations, originalImagePath, imagePath } = element;
-			vscode.window.activeTextEditor.setDecorations(textEditorDecorationType, []);
-		});
+	const findEditorForDocument = (document: vscode.TextDocument) => {
+		const editor = vscode.window.visibleTextEditors.find(p => p.document.uri === document.uri);
+		return editor;
 	};
 
-	const appendImagePath = (showImagePreviewOnGutter, absoluteImagePath, lineIndex, lastScanResult: Decoration[]) => {
+	const clearEditor = (document: vscode.TextDocument, scanResult: Decoration[]) => {
+		const editor = findEditorForDocument(document);
+		if (editor) {
+			scanResult.forEach(element => {
+				let { textEditorDecorationType } = element;
+				editor.setDecorations(textEditorDecorationType, []);
+			});
+		}
+		scanResult.length = 0;
+	};
+
+	const appendImagePath = (
+		editor: vscode.TextEditor,
+		showImagePreviewOnGutter: boolean,
+		absoluteImagePath: string,
+		lineIndex: number,
+		lastScanResult: Decoration[]
+	) => {
 		if (absoluteImagePath) {
 			let isDataUri = absoluteImagePath.indexOf("data:image") == 0;
 			let isExtensionSupported: boolean;
@@ -224,7 +240,7 @@ export function activate(context: vscode.ExtensionContext) {
 					range: new vscode.Range(lineIndex, 0, lineIndex, 0),
 					hoverMessage: ""
 				});
-				var uri = absoluteImagePath;
+				var uri: vscode.Uri | string = absoluteImagePath;
 				if (major > 1 || (major == 1 && minor > 5)) {
 					uri = vscode.Uri.parse(absoluteImagePath);
 				}
@@ -242,8 +258,8 @@ export function activate(context: vscode.ExtensionContext) {
 						originalImagePath: absoluteImagePath,
 						imagePath: uri
 					});
-					if (showImagePreviewOnGutter) {
-						vscode.window.activeTextEditor.setDecorations(textEditorDecorationType, decorations);
+					if (showImagePreviewOnGutter && editor) {
+						editor.setDecorations(textEditorDecorationType, decorations);
 					}
 				};
 				if (isDataUri) {
@@ -270,7 +286,7 @@ export function activate(context: vscode.ExtensionContext) {
 										handle.close();
 										fs.unlink(filePath, () => {});
 										imageCache.delete(absoluteImagePath);
-										throttledScan(50);
+										throttledScan(editor.document, 50);
 									});
 									copyFile(absoluteImagePath, filePath, err => {
 										if (!err) {
@@ -314,20 +330,30 @@ export function activate(context: vscode.ExtensionContext) {
 
 	fallbackImage = context.asAbsolutePath("images/logo.png");
 	let disposables: Disposable[] = [];
-	let lastScanResult: Decoration[] = [];
+	let scanResults: { [uri: string]: Decoration[] } = {};
 	let throttleId = undefined;
-	let throttledScan = (timeout: number = 500) => {
+	let throttledScan = (document: vscode.TextDocument, timeout: number = 500) => {
 		if (throttleId) clearTimeout(throttleId);
-		throttleId = setTimeout(() => scan(), timeout);
+		throttleId = setTimeout(() => scan(document), timeout);
 	};
 
-	const scan = () => {
-		const editor = vscode.window.activeTextEditor;
-		if (editor) {
-			clearEditor(editor, lastScanResult);
-			lastScanResult = [];
-			collectEntries(editor, lastScanResult);
-		}
+	const refreshAllVisibleEditors = () => {
+		vscode.window.visibleTextEditors
+			.map(p => p.document)
+			.filter(p => p != null)
+			.forEach(doc => throttledScan(doc));
+	};
+
+	const getDocumentDecorators = (document: vscode.TextDocument) => {
+		const scanResult = scanResults[document.uri.toString()] || [];
+		scanResults[document.uri.toString()] = scanResult;
+		return scanResult;
+	};
+	const scan = (document: vscode.TextDocument) => {
+		const scanResult = getDocumentDecorators(document);
+
+		clearEditor(document, scanResult);
+		collectEntries(document, scanResult);
 	};
 	let hoverProvider = {
 		provideHover(
@@ -343,7 +369,8 @@ export function activate(context: vscode.ExtensionContext) {
 			let result: Thenable<vscode.Hover> = undefined;
 			if (range) {
 				if (major > 1 || (major == 1 && minor > 7)) {
-					const matchingDecoratorAndItem = lastScanResult
+					const documentDecorators = getDocumentDecorators(document);
+					const matchingDecoratorAndItem = documentDecorators
 						.map(item => {
 							return {
 								item: item,
@@ -394,21 +421,24 @@ export function activate(context: vscode.ExtensionContext) {
 		imageCache.clear();
 	};
 
-	vscode.workspace.onDidChangeTextDocument(() => throttledScan());
+	vscode.workspace.onDidChangeTextDocument(e => throttledScan(e.document));
 	vscode.window.onDidChangeActiveTextEditor(e => {
 		cleanupUnusedTempFiles();
-		throttledScan();
+		throttledScan(e.document);
 	});
-	vscode.workspace.onDidChangeWorkspaceFolders(e => {
+	vscode.workspace.onDidChangeWorkspaceFolders(() => {
 		cleanupUnusedTempFiles();
-		throttledScan();
+		refreshAllVisibleEditors();
 	});
-	vscode.workspace.onDidOpenTextDocument(() => {
-		lastScanResult = [];
+	vscode.workspace.onDidOpenTextDocument(e => {
+		const scanResult = (scanResults[e.uri.toString()] = scanResults[e.uri.toString()] || []);
+		clearEditor(e, scanResult);
+
 		cleanupUnusedTempFiles();
-		throttledScan();
+		throttledScan(e);
 	});
-	throttledScan();
+
+	refreshAllVisibleEditors();
 
 	context.subscriptions.push(...disposables);
 }
