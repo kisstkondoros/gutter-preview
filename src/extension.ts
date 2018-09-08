@@ -23,6 +23,14 @@ export function activate(context: vscode.ExtensionContext) {
     const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp', '.gif'];
     const [major, minor] = vscode.version.split('.').map(v => parseInt(v));
 
+    let scanResults: { [uri: string]: Decoration[] } = {};
+
+    let throttleId = undefined;
+    let throttledScan = (document: vscode.TextDocument, timeout: number = 500) => {
+        if (throttleId) clearTimeout(throttleId);
+        throttleId = setTimeout(() => scan(document), timeout);
+    };
+
     const collectEntries = (document: vscode.TextDocument, lastScanResult: Decoration[]) => {
         var max = document.lineCount;
         const editor = findEditorForDocument(document);
@@ -115,32 +123,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
     };
 
-    let scanResults: { [uri: string]: Decoration[] } = {};
-    let throttleId = undefined;
-    let throttledScan = (document: vscode.TextDocument, timeout: number = 500) => {
-        if (throttleId) clearTimeout(throttleId);
-        throttleId = setTimeout(() => scan(document), timeout);
-    };
-
-    const refreshAllVisibleEditors = () => {
-        vscode.window.visibleTextEditors
-            .map(p => p.document)
-            .filter(p => p != null)
-            .forEach(doc => throttledScan(doc));
-    };
-
-    const getDocumentDecorators = (document: vscode.TextDocument): Decoration[] => {
-        const scanResult = scanResults[document.uri.toString()] || [];
-        scanResults[document.uri.toString()] = scanResult;
-        return scanResult;
-    };
-    const scan = (document: vscode.TextDocument) => {
-        const scanResult = getDocumentDecorators(document);
-
-        clearEditorDecorations(document, scanResult.map(p => p.textEditorDecorationType));
-        scanResult.length = 0;
-        collectEntries(document, scanResult);
-    };
     let hoverProvider = {
         provideHover(document: vscode.TextDocument, position: vscode.Position): Thenable<vscode.Hover> {
             let range = document.getWordRangeAtPosition(position);
@@ -190,6 +172,26 @@ export function activate(context: vscode.ExtensionContext) {
             }
             return result;
         }
+    };
+
+    const refreshAllVisibleEditors = () => {
+        vscode.window.visibleTextEditors
+            .map(p => p.document)
+            .filter(p => p != null)
+            .forEach(doc => throttledScan(doc));
+    };
+
+    const getDocumentDecorators = (document: vscode.TextDocument): Decoration[] => {
+        const scanResult = scanResults[document.uri.toString()] || [];
+        scanResults[document.uri.toString()] = scanResult;
+        return scanResult;
+    };
+    const scan = (document: vscode.TextDocument) => {
+        const scanResult = getDocumentDecorators(document);
+
+        clearEditorDecorations(document, scanResult.map(p => p.textEditorDecorationType));
+        scanResult.length = 0;
+        collectEntries(document, scanResult);
     };
 
     context.subscriptions.push(vscode.languages.registerHoverProvider(['*'], hoverProvider));
