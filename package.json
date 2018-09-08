@@ -74,7 +74,6 @@
     "vscode": "^1.0.0"
   },
   "dependencies": {
-    "base64-img": "^1.0.3",
     "probe-image-size": "^3.0.0",
     "request": "^2.83.0",
     "tmp": "0.0.33"

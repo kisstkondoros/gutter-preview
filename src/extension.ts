@@ -6,7 +6,6 @@ import * as path from "path";
 import * as url from "url";
 import * as fs from "fs";
 import * as probe from "probe-image-size";
-var base64Img = require("base64-img");
 
 tmp.setGracefulCleanup();
 
@@ -458,6 +457,5 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	refreshAllVisibleEditors();
-
 	context.subscriptions.push(...disposables);
 }
