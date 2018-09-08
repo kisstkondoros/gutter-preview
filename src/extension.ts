@@ -11,6 +11,7 @@ import { recognizers } from './recognizers';
 import { findEditorForDocument, clearEditorDecorations } from './util/editorutil';
 import { copyFile } from './util/fileutil';
 import { nonNullOrEmpty } from './util/stringutil';
+import { ImageCache } from './util/imagecache';
 
 tmp.setGracefulCleanup();
 
@@ -24,9 +25,8 @@ interface Decoration {
 export function activate(context: vscode.ExtensionContext) {
     const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp', '.gif'];
     const [major, minor] = vscode.version.split('.').map(v => parseInt(v));
-    let imageCache: Map<String, Thenable<string>> = new Map();
 
-    const collectEntries = (document: vscode.TextDocument, lastScanResult) => {
+    const collectEntries = (document: vscode.TextDocument, lastScanResult: Decoration[]) => {
         var max = document.lineCount;
         const editor = findEditorForDocument(document);
         const config = vscode.workspace.getConfiguration('gutterpreview');
@@ -110,8 +110,8 @@ export function activate(context: vscode.ExtensionContext) {
                 if (isDataUri) {
                     decorate(uri);
                 } else {
-                    if (imageCache.has(absoluteImagePath)) {
-                        imageCache.get(absoluteImagePath).then(path => decorate(path));
+                    if (ImageCache.has(absoluteImagePath)) {
+                        ImageCache.get(absoluteImagePath).then(path => decorate(path));
                     } else {
                         try {
                             const absoluteImageUrl = url.parse(absoluteImagePath);
@@ -130,7 +130,7 @@ export function activate(context: vscode.ExtensionContext) {
                                     const handle = fs.watch(absoluteImagePath, function fileChangeListener() {
                                         handle.close();
                                         fs.unlink(filePath, () => {});
-                                        imageCache.delete(absoluteImagePath);
+                                        ImageCache.delete(absoluteImagePath);
                                         throttledScan(editor.document, 50);
                                     });
                                     copyFile(absoluteImagePath, filePath, err => {
@@ -141,7 +141,8 @@ export function activate(context: vscode.ExtensionContext) {
                                 }
                             });
                             promise.then(path => decorate(path));
-                            imageCache.set(absoluteImagePath, promise);
+
+                            ImageCache.set(absoluteImagePath, promise);
                         } catch (error) {}
                     }
                 }
@@ -164,7 +165,7 @@ export function activate(context: vscode.ExtensionContext) {
             .forEach(doc => throttledScan(doc));
     };
 
-    const getDocumentDecorators = (document: vscode.TextDocument) => {
+    const getDocumentDecorators = (document: vscode.TextDocument): Decoration[] => {
         const scanResult = scanResults[document.uri.toString()] || [];
         scanResults[document.uri.toString()] = scanResult;
         return scanResult;
@@ -230,24 +231,17 @@ export function activate(context: vscode.ExtensionContext) {
     disposables.push(vscode.languages.registerHoverProvider(['*'], hoverProvider));
     disposables.push(
         vscode.Disposable.from({
-            dispose: () => cleanupUnusedTempFiles()
+            dispose: () => ImageCache.cleanup()
         })
     );
 
-    const cleanupUnusedTempFiles = () => {
-        imageCache.forEach(value => {
-            value.then(tmpFile => fs.unlink(tmpFile, () => {}));
-        });
-        imageCache.clear();
-    };
-
     vscode.workspace.onDidChangeTextDocument(e => throttledScan(e.document));
     vscode.window.onDidChangeActiveTextEditor(e => {
-        cleanupUnusedTempFiles();
+        ImageCache.cleanup();
         throttledScan(e.document);
     });
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
-        cleanupUnusedTempFiles();
+        ImageCache.cleanup();
         refreshAllVisibleEditors();
     });
     vscode.workspace.onDidOpenTextDocument(e => {
@@ -255,7 +249,7 @@ export function activate(context: vscode.ExtensionContext) {
         clearEditorDecorations(e, scanResult.map(p => p.textEditorDecorationType));
         scanResult.length = 0;
 
-        cleanupUnusedTempFiles();
+        ImageCache.cleanup();
         throttledScan(e);
     });
 
