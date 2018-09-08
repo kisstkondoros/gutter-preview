@@ -18,8 +18,7 @@ interface Decoration {
 
 export function activate(context: vscode.ExtensionContext) {
 	const acceptedExtensions = [".svg", ".png", ".jpeg", ".jpg", ".bmp", ".gif"];
-	const [major, minor, patch] = vscode.version.split(".").map(v => parseInt(v));
-	let fallbackImage = undefined;
+	const [major, minor] = vscode.version.split(".").map(v => parseInt(v));
 	let imageCache: Map<String, Thenable<string>> = new Map();
 
 	const markdownRecognizer: ImagePathRecognizer = {
@@ -346,7 +345,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}
 
-	fallbackImage = context.asAbsolutePath("images/logo.png");
 	let disposables: Disposable[] = [];
 	let scanResults: { [uri: string]: Decoration[] } = {};
 	let throttleId = undefined;
@@ -399,7 +397,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 					if (matchingDecoratorAndItem) {
 						const item = matchingDecoratorAndItem.item;
-						const dec = matchingDecoratorAndItem.decoration;
 
 						var fallback = (markedString: vscode.MarkedString) => {
 							let resultset: vscode.MarkedString[] = [markedString];
