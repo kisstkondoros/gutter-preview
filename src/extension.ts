@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Disposable, DocumentSelector, languages, commands } from "vscode";
+import { Disposable } from "vscode";
 import * as tmp from "tmp";
 import * as request from "request";
 import * as path from "path";
