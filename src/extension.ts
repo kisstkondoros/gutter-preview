@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import * as tmp from 'tmp';
-import * as request from 'request';
+
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
@@ -9,11 +8,9 @@ import * as probe from 'probe-image-size';
 import { absoluteUrlMappers } from './mappers';
 import { recognizers } from './recognizers';
 import { findEditorForDocument, clearEditorDecorations } from './util/editorutil';
-import { copyFile } from './util/fileutil';
+
 import { nonNullOrEmpty } from './util/stringutil';
 import { ImageCache } from './util/imagecache';
-
-tmp.setGracefulCleanup();
 
 interface Decoration {
     textEditorDecorationType: vscode.TextEditorDecorationType;
@@ -95,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
                         gutterIconSize: 'contain'
                     };
                     let textEditorDecorationType: vscode.TextEditorDecorationType = vscode.window.createTextEditorDecorationType(
-                        <any>decorationRenderOptions
+                        decorationRenderOptions
                     );
                     lastScanResult.push({
                         textEditorDecorationType,
@@ -110,41 +107,9 @@ export function activate(context: vscode.ExtensionContext) {
                 if (isDataUri) {
                     decorate(uri);
                 } else {
-                    if (ImageCache.has(absoluteImagePath)) {
-                        ImageCache.get(absoluteImagePath).then(path => decorate(path));
-                    } else {
-                        try {
-                            const absoluteImageUrl = url.parse(absoluteImagePath);
-                            const tempFile = tmp.fileSync({
-                                postfix: absoluteImageUrl.pathname ? path.parse(absoluteImageUrl.pathname).ext : 'png'
-                            });
-                            const filePath = tempFile.name;
-                            const promise = new Promise<string>(resolve => {
-                                if (absoluteImageUrl.protocol && absoluteImageUrl.protocol.startsWith('http')) {
-                                    var r = request(absoluteImagePath).on('response', function(res) {
-                                        r.pipe(fs.createWriteStream(filePath)).on('close', () => {
-                                            resolve(filePath);
-                                        });
-                                    });
-                                } else {
-                                    const handle = fs.watch(absoluteImagePath, function fileChangeListener() {
-                                        handle.close();
-                                        fs.unlink(filePath, () => {});
-                                        ImageCache.delete(absoluteImagePath);
-                                        throttledScan(editor.document, 50);
-                                    });
-                                    copyFile(absoluteImagePath, filePath, err => {
-                                        if (!err) {
-                                            resolve(filePath);
-                                        }
-                                    });
-                                }
-                            });
-                            promise.then(path => decorate(path));
-
-                            ImageCache.set(absoluteImagePath, promise);
-                        } catch (error) {}
-                    }
+                    ImageCache.store(absoluteImagePath, () => {
+                        throttledScan(editor.document, 50);
+                    }).then(path => decorate(path));
                 }
             }
         }
