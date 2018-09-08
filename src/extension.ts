@@ -150,7 +150,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
     };
 
-    let disposables: vscode.Disposable[] = [];
     let scanResults: { [uri: string]: Decoration[] } = {};
     let throttleId = undefined;
     let throttledScan = (document: vscode.TextDocument, timeout: number = 500) => {
@@ -228,31 +227,36 @@ export function activate(context: vscode.ExtensionContext) {
         }
     };
 
-    disposables.push(vscode.languages.registerHoverProvider(['*'], hoverProvider));
-    disposables.push(
+    context.subscriptions.push(vscode.languages.registerHoverProvider(['*'], hoverProvider));
+    context.subscriptions.push(
         vscode.Disposable.from({
             dispose: () => ImageCache.cleanup()
         })
     );
 
-    vscode.workspace.onDidChangeTextDocument(e => throttledScan(e.document));
-    vscode.window.onDidChangeActiveTextEditor(e => {
-        ImageCache.cleanup();
-        throttledScan(e.document);
-    });
-    vscode.workspace.onDidChangeWorkspaceFolders(() => {
-        ImageCache.cleanup();
-        refreshAllVisibleEditors();
-    });
-    vscode.workspace.onDidOpenTextDocument(e => {
-        const scanResult = (scanResults[e.uri.toString()] = scanResults[e.uri.toString()] || []);
-        clearEditorDecorations(e, scanResult.map(p => p.textEditorDecorationType));
-        scanResult.length = 0;
+    context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(e => throttledScan(e.document)));
+    context.subscriptions.push(
+        vscode.window.onDidChangeActiveTextEditor(e => {
+            ImageCache.cleanup();
+            throttledScan(e.document);
+        })
+    );
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeWorkspaceFolders(() => {
+            ImageCache.cleanup();
+            refreshAllVisibleEditors();
+        })
+    );
+    context.subscriptions.push(
+        vscode.workspace.onDidOpenTextDocument(e => {
+            const scanResult = (scanResults[e.uri.toString()] = scanResults[e.uri.toString()] || []);
+            clearEditorDecorations(e, scanResult.map(p => p.textEditorDecorationType));
+            scanResult.length = 0;
 
-        ImageCache.cleanup();
-        throttledScan(e);
-    });
+            ImageCache.cleanup();
+            throttledScan(e);
+        })
+    );
 
     refreshAllVisibleEditors();
-    context.subscriptions.push(...disposables);
 }
