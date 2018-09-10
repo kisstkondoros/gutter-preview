@@ -42,23 +42,23 @@ export function activate(context: vscode.ExtensionContext) {
             var lineObject = document.lineAt(lineIndex);
             var line = lineObject.text;
 
-            let recognizedImages = recognizers
+            recognizers
                 .map(recognizer => recognizer.recognize(document, line))
-                .filter(item => nonNullOrEmpty(item));
-            recognizedImages.forEach(imagePath => {
-                let absoluteUrls = absoluteUrlMappers
-                    .map(mapper => {
-                        try {
-                            return mapper.map(document, imagePath);
-                        } catch (e) {}
-                    })
-                    .filter(item => nonNullOrEmpty(item));
-                let absoluteUrlsSet = new Set(absoluteUrls);
+                .filter(item => nonNullOrEmpty(item))
+                .forEach(imagePath => {
+                    let absoluteUrls = absoluteUrlMappers
+                        .map(mapper => {
+                            try {
+                                return mapper.map(document, imagePath);
+                            } catch (e) {}
+                        })
+                        .filter(item => nonNullOrEmpty(item));
+                    let absoluteUrlsSet = new Set(absoluteUrls);
 
-                absoluteUrlsSet.forEach(absoluteImagePath => {
-                    appendImagePath(editor, showImagePreviewOnGutter, absoluteImagePath, lineIndex, lastScanResult);
+                    absoluteUrlsSet.forEach(absoluteImagePath => {
+                        appendImagePath(editor, showImagePreviewOnGutter, absoluteImagePath, lineIndex, lastScanResult);
+                    });
                 });
-            });
         }
     };
 
