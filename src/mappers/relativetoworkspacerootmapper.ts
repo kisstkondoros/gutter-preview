@@ -9,9 +9,14 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
     private additionalSourceFolder: string = '';
     map(document: TextDocument, imagePath: string) {
         let absoluteImagePath: string;
-        let root = workspace.getWorkspaceFolder(document.uri);
-        if (root && root.uri && root.uri.fsPath) {
-            const rootPath = root.uri.fsPath;
+        const workspaceFolder = workspace.getWorkspaceFolder(document.uri);
+        let rootPath;
+        if (workspaceFolder && workspaceFolder.uri && workspaceFolder.uri.fsPath) {
+            rootPath = workspaceFolder.uri.fsPath;
+        } else if (workspace.rootPath) {
+            rootPath = workspace.rootPath;
+        }
+        if (rootPath) {
             const pathName = url.parse(imagePath).pathname;
             if (pathName) {
                 let testImagePath = path.join(rootPath, pathName);
