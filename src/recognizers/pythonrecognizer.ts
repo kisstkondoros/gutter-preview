@@ -1,5 +1,5 @@
 import { ImagePathRecognizer } from './recognizer';
-import { TextDocument } from 'vscode';
+import { TextDocument } from 'vscode-languageserver';
 
 export const pythonRecognizer: ImagePathRecognizer = {
     recognize: (document: TextDocument, line: string) => {

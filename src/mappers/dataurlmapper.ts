@@ -1,5 +1,5 @@
 import { AbsoluteUrlMapper } from './mapper';
-import { TextDocument } from 'vscode';
+import { TextDocument } from 'vscode-languageserver';
 
 export const dataUrlMapper: AbsoluteUrlMapper = {
     map(document: TextDocument, imagePath: string) {

@@ -36,7 +36,7 @@ const baseLocalLinkClause = process.platform === 'win32' ? winLocalLinkClause : 
 const _localLinkPattern = new RegExp(`${baseLocalLinkClause}`);
 
 import { ImagePathRecognizer } from './recognizer';
-import { TextDocument } from 'vscode';
+import { TextDocument } from 'vscode-languageserver';
 
 export const localLinkRecognizer: ImagePathRecognizer = {
     recognize: (document: TextDocument, line: string) => {

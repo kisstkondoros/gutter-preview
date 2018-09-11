@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import { AbsoluteUrlMapper } from './mapper';
-import { TextDocument } from 'vscode';
+import { TextDocument } from 'vscode-languageserver';
 
 export const simpleUrlMapper: AbsoluteUrlMapper = {
     map(document: TextDocument, imagePath: string) {
