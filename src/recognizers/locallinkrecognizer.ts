@@ -39,13 +39,20 @@ import { ImagePathRecognizer } from './recognizer';
 import { TextDocument } from 'vscode-languageserver';
 
 export const localLinkRecognizer: ImagePathRecognizer = {
-    recognize: (document: TextDocument, line: string) => {
+    recognize: (document: TextDocument, lineIndex: number, line: string) => {
         let match = _localLinkPattern.exec(line);
         let imagePath: string;
 
         if (match && match.length > 1) {
             imagePath = match[1];
         }
-        return imagePath;
+        return !imagePath
+            ? undefined
+            : {
+                  url: imagePath,
+                  lineIndex,
+                  start: line.indexOf(imagePath),
+                  end: line.indexOf(imagePath) + imagePath.length
+              };
     }
 };

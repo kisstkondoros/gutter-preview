@@ -67,48 +67,46 @@ export function imageDecorator(
 
     let hoverProvider = {
         provideHover(document: vscode.TextDocument, position: vscode.Position): Thenable<vscode.Hover> {
-            let range = document.getWordRangeAtPosition(position);
             let maxHeight = vscode.workspace.getConfiguration('gutterpreview').get('imagepreviewmaxheight', 100);
             if (maxHeight < 0) {
                 maxHeight = 100;
             }
             let result: Thenable<vscode.Hover> = undefined;
-            if (range) {
-                if (major > 1 || (major == 1 && minor > 7)) {
-                    const documentDecorators = getDocumentDecorators(document);
-                    const matchingDecoratorAndItem = documentDecorators
-                        .map(item => {
-                            return {
-                                item: item,
-                                decoration: item.decorations.find(dec => range.start.line == dec.range.start.line)
-                            };
-                        })
-                        .find(pair => pair.decoration != null);
 
-                    if (matchingDecoratorAndItem) {
-                        const item = matchingDecoratorAndItem.item;
+            if (major > 1 || (major == 1 && minor > 7)) {
+                const documentDecorators = getDocumentDecorators(document);
+                const matchingDecoratorAndItem = documentDecorators
+                    .map(item => {
+                        return {
+                            item: item,
+                            decoration: item.decorations.find(dec => dec.range.contains(position))
+                        };
+                    })
+                    .find(pair => pair.decoration != null);
 
-                        var fallback = (markedString: vscode.MarkedString) => {
-                            let resultset: vscode.MarkedString[] = [markedString];
-                            return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
-                        };
-                        var imageWithSize = (markedString, result) => {
-                            let resultset: vscode.MarkedString[] = [
-                                markedString + `  \r\n${result.width}x${result.height}`
-                            ];
-                            return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
-                        };
-                        let markedString: vscode.MarkedString = `![${item.originalImagePath}](${
-                            item.imagePath
-                        }|height=${maxHeight})`;
-                        try {
-                            result = probe(fs.createReadStream(item.imagePath)).then(
-                                result => imageWithSize(markedString, result),
-                                () => fallback(markedString)
-                            );
-                        } catch (error) {
-                            result = Promise.resolve(fallback(markedString));
-                        }
+                if (matchingDecoratorAndItem) {
+                    const item = matchingDecoratorAndItem.item;
+
+                    var fallback = (markedString: vscode.MarkedString) => {
+                        let resultset: vscode.MarkedString[] = [markedString];
+                        return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+                    };
+                    var imageWithSize = (markedString, result) => {
+                        let resultset: vscode.MarkedString[] = [
+                            markedString + `  \r\n${result.width}x${result.height}`
+                        ];
+                        return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+                    };
+                    let markedString: vscode.MarkedString = `![${item.originalImagePath}](${
+                        item.imagePath
+                    }|height=${maxHeight})`;
+                    try {
+                        result = probe(fs.createReadStream(item.imagePath)).then(
+                            result => imageWithSize(markedString, result),
+                            () => fallback(markedString)
+                        );
+                    } catch (error) {
+                        result = Promise.resolve(fallback(markedString));
                     }
                 }
             }

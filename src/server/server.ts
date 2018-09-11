@@ -19,6 +19,7 @@ import { recognizers } from '../recognizers';
 import { nonNullOrEmpty } from '../util/stringutil';
 
 import { ImageCache } from '../util/imagecache';
+import { UrlMatch } from '../recognizers/recognizer';
 
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
@@ -73,13 +74,13 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
         var line = lines[lineIndex];
 
         recognizers
-            .map(recognizer => recognizer.recognize(document, line))
-            .filter(item => nonNullOrEmpty(item))
-            .forEach(imagePath => {
+            .map(recognizer => recognizer.recognize(document, lineIndex, line))
+            .filter(item => !!item)
+            .forEach(urlMatch => {
                 let absoluteUrls = absoluteUrlMappers
                     .map(mapper => {
                         try {
-                            return mapper.map(document, imagePath);
+                            return mapper.map(document, urlMatch.url);
                         } catch (e) {}
                     })
                     .filter(item => nonNullOrEmpty(item));
@@ -87,14 +88,14 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
 
                 items = items.concat(
                     Array.from(absoluteUrlsSet.values()).map(absoluteImagePath =>
-                        convertToLocalImagePath(absoluteImagePath, lineIndex)
+                        convertToLocalImagePath(absoluteImagePath, urlMatch)
                     )
                 );
             });
     }
     return await Promise.all(items);
 }
-async function convertToLocalImagePath(absoluteImagePath: string, lineIndex: number): Promise<ImageInfo> {
+async function convertToLocalImagePath(absoluteImagePath: string, urlMatch: UrlMatch): Promise<ImageInfo> {
     if (absoluteImagePath) {
         let isDataUri = absoluteImagePath.indexOf('data:image') == 0;
         let isExtensionSupported: boolean;
@@ -109,8 +110,9 @@ async function convertToLocalImagePath(absoluteImagePath: string, lineIndex: num
             }
         }
 
-        const pos = Position.create(lineIndex, 0);
-        const range = { start: pos, end: pos };
+        const start = Position.create(urlMatch.lineIndex, urlMatch.start);
+        const end = Position.create(urlMatch.lineIndex, urlMatch.end);
+        const range = { start, end };
 
         absoluteImagePath = absoluteImagePath.replace(/\|(width=\d*)?(height=\d*)?/gm, '');
 
