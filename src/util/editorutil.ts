@@ -8,6 +8,7 @@ export const clearEditorDecorations = (document: TextDocument, decorations: Text
     const editors: TextEditor[] = findEditorsForDocument(document);
     if (editors) {
         decorations.forEach(decoration => {
+            decoration.dispose();
             editors.forEach(editor => editor.setDecorations(decoration, []));
         });
     }
