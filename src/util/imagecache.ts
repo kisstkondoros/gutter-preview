@@ -22,7 +22,7 @@ export const ImageCache = {
     has: (key: string) => {
         return imageCache.has(key);
     },
-    store: (absoluteImagePath: string, onFileChange: () => void): Thenable<string> => {
+    store: (absoluteImagePath: string): Thenable<string> => {
         if (ImageCache.has(absoluteImagePath)) {
             return ImageCache.get(absoluteImagePath);
         } else {
@@ -44,7 +44,6 @@ export const ImageCache = {
                             handle.close();
                             fs.unlink(filePath, () => {});
                             ImageCache.delete(absoluteImagePath);
-                            onFileChange();
                         });
                         copyFile(absoluteImagePath, filePath, err => {
                             if (!err) {

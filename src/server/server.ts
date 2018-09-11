@@ -127,9 +127,7 @@ async function convertToLocalImagePath(absoluteImagePath: string, urlMatch: UrlM
                     range
                 });
             } else {
-                return ImageCache.store(absoluteImagePath, () => {
-                    //throttledScan(editor.document, 50);
-                }).then(imagePath => {
+                return ImageCache.store(absoluteImagePath).then(imagePath => {
                     return {
                         originalImagePath: absoluteImagePath,
                         imagePath,
