@@ -42,14 +42,15 @@ export function imageDecorator(
         const absoluteImagePath = imageInfo.originalImagePath;
 
         var range = client.protocol2CodeConverter.asRange(imageInfo.range);
-
         decorations.push({
             range: range,
             hoverMessage: ''
         });
+
         let decorationRenderOptions: vscode.DecorationRenderOptions = {
             gutterIconPath: uri,
-            gutterIconSize: 'contain'
+            gutterIconSize: 'contain',
+            textDecoration: 'underline'
         };
         let textEditorDecorationType: vscode.TextEditorDecorationType = vscode.window.createTextEditorDecorationType(
             decorationRenderOptions
