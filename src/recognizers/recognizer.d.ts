@@ -8,5 +8,5 @@ interface UrlMatch {
 }
 
 interface ImagePathRecognizer {
-    recognize(document: TextDocument, lineIndex: number, line: string): UrlMatch;
+    recognize(lineIndex: number, line: string): UrlMatch[];
 }

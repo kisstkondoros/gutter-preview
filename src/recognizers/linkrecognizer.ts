@@ -1,22 +1,21 @@
-import { ImagePathRecognizer } from './recognizer';
-import { TextDocument } from 'vscode-languageserver';
+import { ImagePathRecognizer, UrlMatch } from './recognizer';
 
 export const linkRecognizer: ImagePathRecognizer = {
-    recognize: (document: TextDocument, lineIndex: number, line: string) => {
-        let imageUrls: RegExp = /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\(?:[^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))?/gim;
-        let match = imageUrls.exec(line);
-        let imagePath: string;
-
-        if (match && match.length > 1) {
-            imagePath = match[1];
+    recognize: (lineIndex: number, line: string): UrlMatch[] => {
+        let pattern: RegExp = /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\(?:[^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))?/gim;
+        let match: RegExpExecArray;
+        const result = [];
+        while ((match = pattern.exec(line))) {
+            if (match.length > 1) {
+                const imagePath = match[1];
+                result.push({
+                    url: imagePath,
+                    lineIndex,
+                    start: match.index,
+                    end: match.index + imagePath.length
+                });
+            }
         }
-        return !imagePath
-            ? undefined
-            : {
-                  url: imagePath,
-                  lineIndex,
-                  start: line.indexOf(imagePath),
-                  end: line.indexOf(imagePath) + imagePath.length
-              };
+        return result;
     }
 };

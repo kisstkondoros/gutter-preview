@@ -33,26 +33,25 @@ const winLocalLinkClause =
 
 const baseLocalLinkClause = process.platform === 'win32' ? winLocalLinkClause : unixLocalLinkClause;
 // Append line and column number regex
-const _localLinkPattern = new RegExp(`${baseLocalLinkClause}`);
+const _localLinkPattern = new RegExp(`${baseLocalLinkClause}`, 'g');
 
 import { ImagePathRecognizer } from './recognizer';
-import { TextDocument } from 'vscode-languageserver';
 
 export const localLinkRecognizer: ImagePathRecognizer = {
-    recognize: (document: TextDocument, lineIndex: number, line: string) => {
-        let match = _localLinkPattern.exec(line);
-        let imagePath: string;
-
-        if (match && match.length > 1) {
-            imagePath = match[1];
+    recognize: (lineIndex: number, line: string) => {
+        let match: RegExpExecArray;
+        const result = [];
+        while ((match = _localLinkPattern.exec(line))) {
+            if (match.length > 1) {
+                const imagePath = match[1];
+                result.push({
+                    url: imagePath,
+                    lineIndex,
+                    start: match.index,
+                    end: match.index + imagePath.length
+                });
+            }
         }
-        return !imagePath
-            ? undefined
-            : {
-                  url: imagePath,
-                  lineIndex,
-                  start: line.indexOf(imagePath),
-                  end: line.indexOf(imagePath) + imagePath.length
-              };
+        return result;
     }
 };

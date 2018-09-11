@@ -74,23 +74,26 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
         var line = lines[lineIndex];
 
         recognizers
-            .map(recognizer => recognizer.recognize(document, lineIndex, line))
+            .map(recognizer => recognizer.recognize(lineIndex, line))
             .filter(item => !!item)
-            .forEach(urlMatch => {
-                let absoluteUrls = absoluteUrlMappers
-                    .map(mapper => {
-                        try {
-                            return mapper.map(document, urlMatch.url);
-                        } catch (e) {}
-                    })
-                    .filter(item => nonNullOrEmpty(item));
-                let absoluteUrlsSet = new Set(absoluteUrls);
+            .forEach(urlMatches => {
+                urlMatches.forEach(urlMatch => {
+                    let absoluteUrls = absoluteUrlMappers
+                        .map(mapper => {
+                            try {
+                                return mapper.map(document, urlMatch.url);
+                            } catch (e) {}
+                        })
+                        .filter(item => nonNullOrEmpty(item));
 
-                items = items.concat(
-                    Array.from(absoluteUrlsSet.values()).map(absoluteImagePath =>
-                        convertToLocalImagePath(absoluteImagePath, urlMatch)
-                    )
-                );
+                    let absoluteUrlsSet = new Set(absoluteUrls);
+
+                    items = items.concat(
+                        Array.from(absoluteUrlsSet.values()).map(absoluteImagePath =>
+                            convertToLocalImagePath(absoluteImagePath, urlMatch)
+                        )
+                    );
+                });
             });
     }
     return await Promise.all(items);
