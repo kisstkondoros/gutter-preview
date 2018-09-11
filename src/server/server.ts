@@ -28,12 +28,8 @@ console.error = connection.console.error.bind(connection.console);
 let documents: TextDocuments = new TextDocuments();
 documents.listen(connection);
 
-// The workspace folder this server is operating on
-let workspaceFolder: string;
-
 connection.onInitialize(
-    (params): InitializeResult => {
-        workspaceFolder = params.rootUri;
+    (): InitializeResult => {
         return {
             capabilities: {
                 textDocumentSync: documents.syncKind
@@ -68,7 +64,7 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
     let items = [];
 
     absoluteUrlMappers.forEach(absoluteUrlMapper =>
-        absoluteUrlMapper.refreshConfig(workspaceFolder, request.additionalSourcefolder)
+        absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolder)
     );
 
     const lines = document.getText().split(/\r\n|\r|\n/);

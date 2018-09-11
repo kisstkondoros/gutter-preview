@@ -16,7 +16,7 @@ interface Decoration {
 }
 
 export function imageDecorator(
-    decoratorProvider: (uri: string) => Promise<ImageInfoResponse>,
+    decoratorProvider: (uri: vscode.Uri) => Promise<ImageInfoResponse>,
     context: vscode.ExtensionContext,
     client: LanguageClient
 ) {
@@ -133,7 +133,7 @@ export function imageDecorator(
         const config = vscode.workspace.getConfiguration('gutterpreview');
         const showImagePreviewOnGutter = config.get('showimagepreviewongutter', true);
 
-        decoratorProvider(document.uri.toString()).then(symbolResponse => {
+        decoratorProvider(document.uri).then(symbolResponse => {
             const scanResult = getDocumentDecorators(document);
             clearEditorDecorations(document, scanResult.map(p => p.textEditorDecorationType));
             scanResult.length = 0;

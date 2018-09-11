@@ -8,7 +8,7 @@ import {
     LanguageClientOptions,
     LanguageClient
 } from 'vscode-languageclient';
-import { ExtensionContext, window, workspace } from 'vscode';
+import { ExtensionContext, window, workspace, Uri } from 'vscode';
 import { ImageInfoResponse, GutterPreviewImageRequestType } from './common/protocol';
 import { imageDecorator } from './decorator';
 
@@ -45,13 +45,19 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(disposable);
 
-    let symbolUpdater = (uri: string): Promise<ImageInfoResponse> => {
-        return client.onReady().then(() =>
-            client.sendRequest(GutterPreviewImageRequestType, {
-                uri,
+    let symbolUpdater = (uri: Uri): Promise<ImageInfoResponse> => {
+        return client.onReady().then(() => {
+            const folder = workspace.getWorkspaceFolder(uri);
+            let workspaceFolder;
+            if (folder && folder.uri) {
+                workspaceFolder = folder.uri.toString();
+            }
+            return client.sendRequest(GutterPreviewImageRequestType, {
+                uri: uri.toString(),
+                workspaceFolder: workspaceFolder,
                 additionalSourcefolder: workspace.getConfiguration('gutterpreview').get('sourcefolder', '')
-            })
-        ) as Promise<ImageInfoResponse>;
+            });
+        });
     };
     imageDecorator(symbolUpdater, context, client);
 }
