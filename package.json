@@ -24,14 +24,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:stylable",
-    "onLanguage:stylus",
-    "onLanguage:css",
-    "onLanguage:less",
-    "onLanguage:scss",
-    "onLanguage:html",
-    "onLanguage:markdown",
-    "onLanguage:python"
+    "*"
   ],
   "contributes": {
     "configuration": {
