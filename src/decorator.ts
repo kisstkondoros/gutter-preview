@@ -24,10 +24,16 @@ export function imageDecorator(
 
     let scanResults: { [uri: string]: Decoration[] } = {};
 
-    let throttleId = undefined;
+    let throttleIds = {};
     let throttledScan = (document: vscode.TextDocument, timeout: number = 500) => {
-        if (throttleId) clearTimeout(throttleId);
-        throttleId = setTimeout(() => scan(document), timeout);
+        if (document && document.uri) {
+            const lookupKey = document.uri.toString();
+            if (throttleIds[lookupKey]) clearTimeout(throttleIds[lookupKey]);
+            throttleIds[lookupKey] = setTimeout(() => {
+                scan(document);
+                delete throttleIds[lookupKey];
+            }, timeout);
+        }
     };
 
     const decorate = (
