@@ -135,26 +135,36 @@ export function imageDecorator(
     };
     const scan = (document: vscode.TextDocument) => {
         const editors = findEditorsForDocument(document);
-        const config = vscode.workspace.getConfiguration('gutterpreview');
-        const showImagePreviewOnGutter = config.get('showimagepreviewongutter', true);
+        if (editors.length > 0) {
+            const config = vscode.workspace.getConfiguration('gutterpreview');
+            const showImagePreviewOnGutter = config.get('showimagepreviewongutter', true);
 
-        decoratorProvider(document.uri).then(symbolResponse => {
-            const scanResult = getDocumentDecorators(document);
-            clearEditorDecorations(document, scanResult.map(p => p.textEditorDecorationType));
-            scanResult.length = 0;
+            decoratorProvider(document.uri).then(symbolResponse => {
+                const scanResult = getDocumentDecorators(document);
+                clearEditorDecorations(document, scanResult.map(p => p.textEditorDecorationType));
+                scanResult.length = 0;
 
-            symbolResponse.images.forEach(p =>
-                editors.forEach(editor => decorate(showImagePreviewOnGutter, editor, p, scanResult))
-            );
-        });
+                symbolResponse.images.forEach(p =>
+                    editors.forEach(editor => decorate(showImagePreviewOnGutter, editor, p, scanResult))
+                );
+            });
+        }
     };
 
     context.subscriptions.push(vscode.languages.registerHoverProvider(['*'], hoverProvider));
 
-    context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(e => throttledScan(e.document)));
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeTextDocument(e => {
+            if (e) {
+                throttledScan(e.document);
+            }
+        })
+    );
     context.subscriptions.push(
         vscode.window.onDidChangeActiveTextEditor(e => {
-            throttledScan(e.document);
+            if (e) {
+                throttledScan(e.document);
+            }
         })
     );
     context.subscriptions.push(
@@ -164,11 +174,12 @@ export function imageDecorator(
     );
     context.subscriptions.push(
         vscode.workspace.onDidOpenTextDocument(e => {
-            const scanResult = (scanResults[e.uri.toString()] = scanResults[e.uri.toString()] || []);
-            clearEditorDecorations(e, scanResult.map(p => p.textEditorDecorationType));
-            scanResult.length = 0;
-
-            throttledScan(e);
+            if (e) {
+                const scanResult = (scanResults[e.uri.toString()] = scanResults[e.uri.toString()] || []);
+                clearEditorDecorations(e, scanResult.map(p => p.textEditorDecorationType));
+                scanResult.length = 0;
+                throttledScan(e);
+            }
         })
     );
 
