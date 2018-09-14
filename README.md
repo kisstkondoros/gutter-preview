@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.14.2
+    -   Fix several windows compatiblity issues
 -   0.14.1
     -   Add null checks around editor instances
 -   0.14.0

@@ -40,11 +40,13 @@ export const ImageCache = {
                             });
                         });
                     } else {
-                        const handle = fs.watch(absoluteImagePath, function fileChangeListener() {
-                            handle.close();
-                            fs.unlink(filePath, () => {});
-                            ImageCache.delete(absoluteImagePath);
-                        });
+                        try {
+                            const handle = fs.watch(absoluteImagePath, function fileChangeListener() {
+                                handle.close();
+                                fs.unlink(filePath, () => {});
+                                ImageCache.delete(absoluteImagePath);
+                            });
+                        } catch (e) {}
                         copyFile(absoluteImagePath, filePath, err => {
                             if (!err) {
                                 resolve(filePath);

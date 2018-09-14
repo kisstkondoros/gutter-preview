@@ -31,9 +31,9 @@ const winLocalLinkClause =
     winExcludedPathCharactersClause +
     ')+)+)';
 
-const baseLocalLinkClause = process.platform === 'win32' ? winLocalLinkClause : unixLocalLinkClause;
 // Append line and column number regex
-const _localLinkPattern = new RegExp(`${baseLocalLinkClause}`, 'g');
+const _winLocalLinkPattern = new RegExp(`${winLocalLinkClause}`, 'g');
+const _unixLinkPattern = new RegExp(`${unixLocalLinkClause}`, 'g');
 
 import { ImagePathRecognizer } from './recognizer';
 
@@ -41,7 +41,18 @@ export const localLinkRecognizer: ImagePathRecognizer = {
     recognize: (lineIndex: number, line: string) => {
         let match: RegExpExecArray;
         const result = [];
-        while ((match = _localLinkPattern.exec(line))) {
+        while ((match = _unixLinkPattern.exec(line))) {
+            if (match.length > 1) {
+                const imagePath = match[1];
+                result.push({
+                    url: imagePath,
+                    lineIndex,
+                    start: match.index,
+                    end: match.index + imagePath.length
+                });
+            }
+        }
+        while ((match = _winLocalLinkPattern.exec(line))) {
             if (match.length > 1) {
                 const imagePath = match[1];
                 result.push({

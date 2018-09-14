@@ -2,26 +2,25 @@ import * as url from 'url';
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { TextDocument } from 'vscode-languageserver';
 import { AbsoluteUrlMapper } from './mapper';
 
 class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
     private additionalSourceFolder: string = '';
     private workspaceFolder: string;
 
-    map(document: TextDocument, imagePath: string) {
+    map(fileName: string, imagePath: string) {
         let absoluteImagePath: string;
 
         if (this.workspaceFolder) {
             let rootPath = url.parse(this.workspaceFolder);
             const pathName = url.parse(imagePath).pathname;
 
-            if (rootPath.protocol == 'file:' && pathName) {
+            if (pathName) {
                 let testImagePath = path.join(rootPath.path, pathName);
                 if (fs.existsSync(testImagePath)) {
                     absoluteImagePath = testImagePath;
                 } else {
-                    let testImagePath = path.join(rootPath.path, this.additionalSourceFolder, pathName);
+                    let testImagePath = path.join(rootPath.href, this.additionalSourceFolder, pathName);
                     if (fs.existsSync(testImagePath)) {
                         absoluteImagePath = testImagePath;
                     }

@@ -10,6 +10,7 @@ export interface ImageInfoResponse {
 }
 export interface ImageInfoRequest {
     uri: string;
+    fileName: string;
     workspaceFolder: string;
     additionalSourcefolder: string;
 }

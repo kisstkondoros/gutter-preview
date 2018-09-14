@@ -1,8 +1,13 @@
 import { ImagePathRecognizer, UrlMatch } from './recognizer';
+import { acceptedExtensions } from '../util/acceptedExtensions';
 
-export const linkRecognizer: ImagePathRecognizer = {
+export const siblingRecognizer: ImagePathRecognizer = {
     recognize: (lineIndex: number, line: string): UrlMatch[] => {
-        let pattern: RegExp = /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\(?:[^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))?/gim;
+        const excludedPathCharactersClause = '[^\\0\\s!$`&*()\\[\\]+\'":;\\\\]';
+        let pattern: RegExp = new RegExp(
+            `(${excludedPathCharactersClause}+(?:${acceptedExtensions.map(p => `(\\${p})`).join('|')}))`,
+            'igm'
+        );
         let match: RegExpExecArray;
         const result = [];
         while ((match = pattern.exec(line))) {

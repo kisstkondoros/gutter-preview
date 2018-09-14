@@ -4,7 +4,6 @@ import {
     IPCMessageWriter,
     IConnection,
     createConnection,
-    Range,
     Position,
     TextDocuments,
     TextDocument
@@ -14,6 +13,7 @@ import { GutterPreviewImageRequestType, ImageInfoResponse, ImageInfo, ImageInfoR
 import * as path from 'path';
 import * as url from 'url';
 
+import { acceptedExtensions } from '../util/acceptedExtensions';
 import { absoluteUrlMappers } from '../mappers';
 import { recognizers } from '../recognizers';
 import { nonNullOrEmpty } from '../util/stringutil';
@@ -46,7 +46,7 @@ connection.onRequest(
         if (document) {
             const entries = await collectEntries(document, request).then(values => values.filter(p => !!p));
             return {
-                images: entries
+                images: entries.filter(p => !!p)
             };
         } else {
             return {
@@ -60,7 +60,6 @@ connection.onShutdown(() => {
 });
 connection.listen();
 
-const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp', '.gif'];
 async function collectEntries(document: TextDocument, request: ImageInfoRequest): Promise<ImageInfo[]> {
     let items = [];
 
@@ -81,7 +80,7 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
                     let absoluteUrls = absoluteUrlMappers
                         .map(mapper => {
                             try {
-                                return mapper.map(document, urlMatch.url);
+                                return mapper.map(request.fileName, urlMatch.url);
                             } catch (e) {}
                         })
                         .filter(item => nonNullOrEmpty(item));
@@ -90,7 +89,7 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
 
                     items = items.concat(
                         Array.from(absoluteUrlsSet.values()).map(absoluteImagePath =>
-                            convertToLocalImagePath(absoluteImagePath, urlMatch)
+                            convertToLocalImagePath(absoluteImagePath, urlMatch).catch(p => null)
                         )
                     );
                 });
@@ -105,10 +104,10 @@ async function convertToLocalImagePath(absoluteImagePath: string, urlMatch: UrlM
 
         if (!isDataUri) {
             const absoluteImageUrl = url.parse(absoluteImagePath);
-            if (absoluteImageUrl.pathname) {
+            if (absoluteImageUrl && absoluteImageUrl.pathname) {
                 let absolutePath = path.parse(absoluteImageUrl.pathname);
                 isExtensionSupported = acceptedExtensions.some(
-                    ext => absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext)
+                    ext => absolutePath && absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext)
                 );
             }
         }
