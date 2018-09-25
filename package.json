@@ -31,19 +31,24 @@
       "type": "object",
       "title": "Image Preview configuration",
       "properties": {
-        "gutterpreview.sourcefolder": {
+        "gutterpreview.sourceFolder": {
           "default": "src",
           "description": "Additional folder to consider when resolving relative urls",
           "type": "string"
         },
-        "gutterpreview.imagepreviewmaxheight": {
+        "gutterpreview.imagePreviewMaxHeight": {
           "default": "100",
           "description": "The maximum height of the image preview",
           "type": "number"
         },
-        "gutterpreview.showimagepreviewongutter": {
+        "gutterpreview.showImagePreviewOnGutter": {
           "default": true,
-          "description": "A flag which indicates wether the image preview should be shown on the gutter",
+          "description": "A flag which indicates whether the image preview should be shown on the gutter",
+          "type": "boolean"
+        },
+        "gutterpreview.showUnderline": {
+          "default": true,
+          "description": "A flag which indicates whether to underline recognized URLs",
           "type": "boolean"
         }
       }
