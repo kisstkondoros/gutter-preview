@@ -14,6 +14,9 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.15.1
+    -   Update dependencies
+    -   Add scope for configuration properties
 -   0.15.0
     -   Change casing of configuration options (by Orhan Sönmez)
     -   Add option (`gutterpreview.showUnderline`) to disable link like underline (by Orhan Sönmez)
