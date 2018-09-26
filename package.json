@@ -33,21 +33,25 @@
       "properties": {
         "gutterpreview.sourceFolder": {
           "default": "src",
+          "scope": "resource",
           "description": "Additional folder to consider when resolving relative urls",
           "type": "string"
         },
         "gutterpreview.imagePreviewMaxHeight": {
           "default": "100",
+          "scope": "resource",
           "description": "The maximum height of the image preview",
           "type": "number"
         },
         "gutterpreview.showImagePreviewOnGutter": {
           "default": true,
+          "scope": "resource",
           "description": "A flag which indicates whether the image preview should be shown on the gutter",
           "type": "boolean"
         },
         "gutterpreview.showUnderline": {
           "default": true,
+          "scope": "resource",
           "description": "A flag which indicates whether to underline recognized URLs",
           "type": "boolean"
         }
