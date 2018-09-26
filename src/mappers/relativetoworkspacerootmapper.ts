@@ -16,7 +16,7 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
             const pathName = url.parse(imagePath).pathname;
 
             if (pathName) {
-                let testImagePath = path.join(rootPath.path, pathName);
+                let testImagePath = path.join(rootPath.href, pathName);
                 if (fs.existsSync(testImagePath)) {
                     absoluteImagePath = testImagePath;
                 } else {
