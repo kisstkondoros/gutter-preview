@@ -14,6 +14,11 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.15.0
+    -   Change casing of configuration options (by Orhan Sönmez)
+    -   Add option (`gutterpreview.showUnderline`) to disable link like underline (by Orhan Sönmez)
+    -   Use more flexible pattern for data url detection
+    -   Fix path resolution for urls relative to the workspace folder
 -   0.14.2
     -   Fix several windows compatiblity issues
 -   0.14.1
