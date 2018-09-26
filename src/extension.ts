@@ -11,6 +11,7 @@ import {
 import { ExtensionContext, window, workspace, Uri, TextDocument } from 'vscode';
 import { ImageInfoResponse, GutterPreviewImageRequestType } from './common/protocol';
 import { imageDecorator } from './decorator';
+import { getConfiguredProperty } from './util/configuration';
 
 export function activate(context: ExtensionContext) {
     let serverModule = context.asAbsolutePath(path.join('out', 'src', 'server', 'server.js'));
@@ -56,7 +57,7 @@ export function activate(context: ExtensionContext) {
                 uri: document.uri.toString(),
                 fileName: document.fileName,
                 workspaceFolder: workspaceFolder,
-                additionalSourcefolder: workspace.getConfiguration('gutterpreview').get('sourcefolder', '')
+                additionalSourcefolder: getConfiguredProperty(document, 'sourceFolder', '')
             });
         });
     };

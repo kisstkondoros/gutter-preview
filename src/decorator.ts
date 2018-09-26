@@ -7,6 +7,7 @@ import { findEditorsForDocument, clearEditorDecorations } from './util/editoruti
 
 import { ImageInfoResponse, ImageInfo } from './common/protocol';
 import { LanguageClient } from 'vscode-languageclient';
+import { getConfiguredProperty } from './util/configuration';
 
 interface Decoration {
     textEditorDecorationType: vscode.TextEditorDecorationType;
@@ -46,7 +47,11 @@ export function imageDecorator(
 
         const uri = imageInfo.imagePath;
         const absoluteImagePath = imageInfo.originalImagePath;
-        const underlineEnabled = vscode.workspace.getConfiguration('gutterpreview').get('showUnderline', true);
+        const underlineEnabled = getConfiguredProperty(
+            editor && editor.document ? editor.document : undefined,
+            'showUnderline',
+            true
+        );
 
         var range = client.protocol2CodeConverter.asRange(imageInfo.range);
         decorations.push({
@@ -75,7 +80,7 @@ export function imageDecorator(
 
     let hoverProvider = {
         provideHover(document: vscode.TextDocument, position: vscode.Position): Thenable<vscode.Hover> {
-            let maxHeight = vscode.workspace.getConfiguration('gutterpreview').get('imagePreviewMaxHeight', 100);
+            let maxHeight = getConfiguredProperty(document, 'imagePreviewMaxHeight', 100);
             if (maxHeight < 0) {
                 maxHeight = 100;
             }
@@ -137,8 +142,7 @@ export function imageDecorator(
     const scan = (document: vscode.TextDocument) => {
         const editors = findEditorsForDocument(document);
         if (editors.length > 0) {
-            const config = vscode.workspace.getConfiguration('gutterpreview');
-            const showImagePreviewOnGutter = config.get('showImagePreviewOnGutter', true);
+            const showImagePreviewOnGutter = getConfiguredProperty(document, 'showImagePreviewOnGutter', true);
 
             decoratorProvider(document).then(symbolResponse => {
                 const scanResult = getDocumentDecorators(document);
