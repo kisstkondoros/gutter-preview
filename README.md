@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.15.2
+    -   Restore vscode.Uri based image handling for decorations
 -   0.15.1
     -   Update dependencies
     -   Add scope for configuration properties

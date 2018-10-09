@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-
+import slash = require('slash');
 import * as fs from 'fs';
 import * as probe from 'probe-image-size';
 
@@ -45,7 +45,11 @@ export function imageDecorator(
     ) => {
         let decorations: vscode.DecorationOptions[] = [];
 
-        const uri = imageInfo.imagePath;
+        const normalizedPath = imageInfo.imagePath.startsWith('data:')
+            ? imageInfo.imagePath
+            : 'file://' + slash(imageInfo.imagePath);
+        let uri: vscode.Uri = vscode.Uri.parse(normalizedPath);
+
         const absoluteImagePath = imageInfo.originalImagePath;
         const underlineEnabled = getConfiguredProperty(
             editor && editor.document ? editor.document : undefined,
@@ -71,7 +75,7 @@ export function imageDecorator(
             textEditorDecorationType,
             decorations,
             originalImagePath: absoluteImagePath,
-            imagePath: uri
+            imagePath: uri.fsPath
         });
         if (showImagePreviewOnGutter && editor) {
             editor.setDecorations(textEditorDecorationType, decorations);
@@ -110,16 +114,19 @@ export function imageDecorator(
                         ];
                         return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
                     };
-                    let markedString: vscode.MarkedString = `![${item.originalImagePath}](${
-                        item.imagePath
-                    }|height=${maxHeight})`;
+                    let markedString: (string) => vscode.MarkedString = imagePath =>
+                        `![${imagePath}](${imagePath}|height=${maxHeight})`;
                     try {
-                        result = probe(fs.createReadStream(item.imagePath)).then(
-                            result => imageWithSize(markedString, result),
-                            () => fallback(markedString)
-                        );
+                        if (item.originalImagePath.startsWith('data:image')) {
+                            result = Promise.resolve(fallback(markedString(item.originalImagePath)));
+                        } else {
+                            result = probe(fs.createReadStream(item.imagePath)).then(
+                                result => imageWithSize(markedString(item.imagePath), result),
+                                () => fallback(markedString(item.imagePath))
+                            );
+                        }
                     } catch (error) {
-                        result = Promise.resolve(fallback(markedString));
+                        result = Promise.resolve(fallback(markedString(item.imagePath)));
                     }
                 }
             }
