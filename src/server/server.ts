@@ -97,16 +97,18 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
                         .map(mapper => {
                             try {
                                 return mapper.map(request.fileName, urlMatch.url);
-                            } catch (e) { }
+                            } catch (e) {}
                         })
                         .filter(item => nonNullOrEmpty(item));
 
                     let absoluteUrlsSet = new Set(absoluteUrls);
 
                     items = items.concat(
-                        Array.from(absoluteUrlsSet.values()).map(absoluteImagePath =>
-                            convertToLocalImagePath(absoluteImagePath, urlMatch).catch(p => null)
-                        )
+                        Array.from(absoluteUrlsSet.values()).map(absoluteImagePath => {
+                            const result =
+                                convertToLocalImagePath(absoluteImagePath, urlMatch) || Promise.resolve(null);
+                            return result.catch(p => null);
+                        })
                     );
                 });
             });
