@@ -6,7 +6,8 @@ import {
     createConnection,
     Position,
     TextDocuments,
-    TextDocument
+    TextDocument,
+    CancellationToken
 } from 'vscode-languageserver';
 import { GutterPreviewImageRequestType, ImageInfoResponse, ImageInfo, ImageInfoRequest } from '../common/protocol';
 
@@ -41,11 +42,16 @@ connection.onInitialize(
 
 connection.onRequest(
     GutterPreviewImageRequestType,
-    async (request: ImageInfoRequest): Promise<ImageInfoResponse> => {
+    async (request: ImageInfoRequest, cancellationToken: CancellationToken): Promise<ImageInfoResponse> => {
         try {
             let document = documents.get(request.uri);
             if (document) {
-                return collectEntries(document, request)
+                const cancellation = new Promise<ImageInfo[]>((res, rej) => {
+                    cancellationToken.onCancellationRequested(() => {
+                        res([]);
+                    });
+                });
+                return Promise.race([collectEntries(document, request, cancellationToken), cancellation])
                     .then(values => values.filter(p => !!p))
                     .then(entries => {
                         return {
@@ -76,7 +82,11 @@ connection.onShutdown(() => {
 });
 connection.listen();
 
-async function collectEntries(document: TextDocument, request: ImageInfoRequest): Promise<ImageInfo[]> {
+async function collectEntries(
+    document: TextDocument,
+    request: ImageInfoRequest,
+    cancellationToken: CancellationToken
+): Promise<ImageInfo[]> {
     let items = [];
 
     absoluteUrlMappers.forEach(absoluteUrlMapper =>
@@ -87,15 +97,21 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
     var max = lines.length;
     for (var lineIndex = 0; lineIndex < max; lineIndex++) {
         var line = lines[lineIndex];
+        if (cancellationToken.isCancellationRequested) return items;
         if (line.length > 20000) {
             continue;
         }
 
         recognizers
-            .map(recognizer => recognizer.recognize(lineIndex, line))
+            .map(recognizer => {
+                if (cancellationToken.isCancellationRequested) return;
+                return recognizer.recognize(lineIndex, line);
+            })
             .filter(item => !!item)
             .forEach(urlMatches => {
+                if (cancellationToken.isCancellationRequested) return;
                 urlMatches.forEach(urlMatch => {
+                    if (cancellationToken.isCancellationRequested) return;
                     let absoluteUrls = absoluteUrlMappers
                         .map(mapper => {
                             try {
