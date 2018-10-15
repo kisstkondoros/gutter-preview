@@ -2,7 +2,7 @@ import { ImagePathRecognizer, UrlMatch } from './recognizer';
 
 export const linkRecognizer: ImagePathRecognizer = {
     recognize: (lineIndex: number, line: string): UrlMatch[] => {
-        let pattern: RegExp = /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\(?:[^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))?/gim;
+        let pattern: RegExp = /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\(?:[^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))?/gi;
         let match: RegExpExecArray;
         const result = [];
         while ((match = pattern.exec(line))) {
