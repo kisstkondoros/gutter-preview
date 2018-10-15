@@ -151,15 +151,19 @@ export function imageDecorator(
         if (editors.length > 0) {
             const showImagePreviewOnGutter = getConfiguredProperty(document, 'showImagePreviewOnGutter', true);
 
-            decoratorProvider(document).then(symbolResponse => {
-                const scanResult = getDocumentDecorators(document);
-                clearEditorDecorations(document, scanResult.map(p => p.textEditorDecorationType));
-                scanResult.length = 0;
+            decoratorProvider(document)
+                .then(symbolResponse => {
+                    const scanResult = getDocumentDecorators(document);
+                    clearEditorDecorations(document, scanResult.map(p => p.textEditorDecorationType));
+                    scanResult.length = 0;
 
-                symbolResponse.images.forEach(p =>
-                    editors.forEach(editor => decorate(showImagePreviewOnGutter, editor, p, scanResult))
-                );
-            });
+                    symbolResponse.images.forEach(p =>
+                        editors.forEach(editor => decorate(showImagePreviewOnGutter, editor, p, scanResult))
+                    );
+                })
+                .catch(e => {
+                    console.error(e);
+                });
         }
     };
 

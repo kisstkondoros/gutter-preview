@@ -42,13 +42,29 @@ connection.onInitialize(
 connection.onRequest(
     GutterPreviewImageRequestType,
     async (request: ImageInfoRequest): Promise<ImageInfoResponse> => {
-        let document = documents.get(request.uri);
-        if (document) {
-            const entries = await collectEntries(document, request).then(values => values.filter(p => !!p));
-            return {
-                images: entries.filter(p => !!p)
-            };
-        } else {
+        try {
+            let document = documents.get(request.uri);
+            if (document) {
+                return collectEntries(document, request)
+                    .then(values => values.filter(p => !!p))
+                    .then(entries => {
+                        return {
+                            images: entries.filter(p => !!p)
+                        };
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        return {
+                            images: []
+                        };
+                    });
+            } else {
+                return {
+                    images: []
+                };
+            }
+        } catch (e) {
+            console.error(e);
             return {
                 images: []
             };
@@ -81,7 +97,7 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
                         .map(mapper => {
                             try {
                                 return mapper.map(request.fileName, urlMatch.url);
-                            } catch (e) {}
+                            } catch (e) { }
                         })
                         .filter(item => nonNullOrEmpty(item));
 
