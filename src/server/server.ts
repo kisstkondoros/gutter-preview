@@ -87,6 +87,9 @@ async function collectEntries(document: TextDocument, request: ImageInfoRequest)
     var max = lines.length;
     for (var lineIndex = 0; lineIndex < max; lineIndex++) {
         var line = lines[lineIndex];
+        if (line.length > 20000) {
+            continue;
+        }
 
         recognizers
             .map(recognizer => recognizer.recognize(lineIndex, line))
