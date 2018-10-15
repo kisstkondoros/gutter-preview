@@ -14,6 +14,9 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.15.3
+    -   Skip lines longer than 20k when searching for potential links
+    -   Fix runtime dependency issue (slash)
 -   0.15.2
     -   Restore vscode.Uri based image handling for decorations
 -   0.15.1
