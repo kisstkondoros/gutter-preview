@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import slash = require('slash');
 import * as fs from 'fs';
 import * as probe from 'probe-image-size';
+import 'any-promise/register/es6-promise';
 
 import { findEditorsForDocument, clearEditorDecorations } from './util/editorutil';
 
