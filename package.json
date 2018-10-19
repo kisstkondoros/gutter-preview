@@ -9,7 +9,7 @@
   "displayName": "Image preview",
   "icon": "images/logo.png",
   "engines": {
-    "vscode": "^1.15.0"
+    "vscode": "^1.28.0"
   },
   "repository": {
     "type": "git",
