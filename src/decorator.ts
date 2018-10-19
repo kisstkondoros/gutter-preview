@@ -76,7 +76,7 @@ export function imageDecorator(
             textEditorDecorationType,
             decorations,
             originalImagePath: absoluteImagePath,
-            imagePath: uri.fsPath
+            imagePath: imageInfo.imagePath
         });
         if (showImagePreviewOnGutter && editor) {
             editor.setDecorations(textEditorDecorationType, decorations);
