@@ -14,6 +14,12 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.16.0
+    -   Fix image size calculation
+    -   Fix image path handling under Windows
+    -   Require vscode version 1.29.0
+    -   Make use of ImageCache for faster image path verification
+    -   Implement partial scan and proper cancellation token handling
 -   0.15.3
     -   Skip lines longer than 20k when searching for potential links
     -   Fix runtime dependency issue (slash)
