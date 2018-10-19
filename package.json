@@ -75,10 +75,11 @@
     "vscode": "^1.0.0"
   },
   "dependencies": {
+    "es6-promise": "^4.2.5",
     "probe-image-size": "^4.0.0",
     "request": "^2.83.0",
-    "tmp": "0.0.33",
     "slash": "^2.0.0",
+    "tmp": "0.0.33",
     "vscode-languageclient": "^3.5.0",
     "vscode-languageserver": "^3.5.0"
   }
