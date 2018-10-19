@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import { AbsoluteUrlMapper } from './mapper';
+import { ImageCache } from '../util/imagecache';
 
 export const simpleUrlMapper: AbsoluteUrlMapper = {
     map(fileName: string, imagePath: string) {
@@ -11,7 +12,7 @@ export const simpleUrlMapper: AbsoluteUrlMapper = {
         } else if (imagePath.indexOf('//') == 0) {
             absoluteImagePath = 'http:' + imagePath;
         } else if (path.isAbsolute(imagePath)) {
-            if (fs.existsSync(imagePath)) {
+            if (ImageCache.has(imagePath) || fs.existsSync(imagePath)) {
                 absoluteImagePath = imagePath;
             }
         }

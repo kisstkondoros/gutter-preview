@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import { AbsoluteUrlMapper } from './mapper';
+import { ImageCache } from '../util/imagecache';
 
 class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
     private additionalSourceFolder: string = '';
@@ -17,11 +18,11 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
 
             if (pathName) {
                 let testImagePath = path.join(rootPath.href, pathName);
-                if (fs.existsSync(testImagePath)) {
+                if (ImageCache.has(testImagePath) || fs.existsSync(testImagePath)) {
                     absoluteImagePath = testImagePath;
                 } else {
                     let testImagePath = path.join(rootPath.href, this.additionalSourceFolder, pathName);
-                    if (fs.existsSync(testImagePath)) {
+                    if (ImageCache.has(testImagePath) || fs.existsSync(testImagePath)) {
                         absoluteImagePath = testImagePath;
                     }
                 }

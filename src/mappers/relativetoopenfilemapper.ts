@@ -3,6 +3,7 @@ import * as url from 'url';
 import * as fs from 'fs';
 
 import { AbsoluteUrlMapper } from './mapper';
+import { ImageCache } from '../util/imagecache';
 
 export const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
     map(fileName: string, imagePath: string) {
@@ -10,7 +11,7 @@ export const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
         const pathName = url.parse(imagePath).pathname;
         if (pathName) {
             let testImagePath = path.join(fileName, '..', pathName);
-            if (fs.existsSync(testImagePath)) {
+            if (ImageCache.has(testImagePath) || fs.existsSync(testImagePath)) {
                 absoluteImagePath = testImagePath;
             }
         }
