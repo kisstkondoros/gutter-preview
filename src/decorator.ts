@@ -16,15 +16,22 @@ interface Decoration {
     originalImagePath: string;
     imagePath: string;
 }
-
+interface ScanResult {
+    decorations: Decoration[];
+    token: vscode.CancellationTokenSource;
+}
 export function imageDecorator(
-    decoratorProvider: (document: vscode.TextDocument) => Promise<ImageInfoResponse>,
+    decoratorProvider: (
+        document: vscode.TextDocument,
+        visibleLines: number[],
+        token: vscode.CancellationToken
+    ) => Promise<ImageInfoResponse>,
     context: vscode.ExtensionContext,
     client: LanguageClient
 ) {
     const [major, minor] = vscode.version.split('.').map(v => parseInt(v));
 
-    let scanResults: { [uri: string]: Decoration[] } = {};
+    let scanResults: { [uri: string]: ScanResult } = {};
 
     let throttleIds = {};
     let throttledScan = (document: vscode.TextDocument, timeout: number = 500) => {
@@ -93,7 +100,7 @@ export function imageDecorator(
 
             if (major > 1 || (major == 1 && minor > 7)) {
                 const documentDecorators = getDocumentDecorators(document);
-                const matchingDecoratorAndItem = documentDecorators
+                const matchingDecoratorAndItem = documentDecorators.decorations
                     .map(item => {
                         return {
                             item: item,
@@ -142,8 +149,11 @@ export function imageDecorator(
             .forEach(doc => throttledScan(doc));
     };
 
-    const getDocumentDecorators = (document: vscode.TextDocument): Decoration[] => {
-        const scanResult = scanResults[document.uri.toString()] || [];
+    const getDocumentDecorators = (document: vscode.TextDocument): ScanResult => {
+        const scanResult = scanResults[document.uri.toString()] || {
+            decorations: [],
+            token: new vscode.CancellationTokenSource()
+        };
         scanResults[document.uri.toString()] = scanResult;
         return scanResult;
     };
@@ -151,16 +161,31 @@ export function imageDecorator(
         const editors = findEditorsForDocument(document);
         if (editors.length > 0) {
             const showImagePreviewOnGutter = getConfiguredProperty(document, 'showImagePreviewOnGutter', true);
+            const visibleLines = [];
+            for (const editor of editors) {
+                for (const range of editor.visibleRanges) {
+                    let lineIndex = range.start.line;
+                    while (lineIndex <= range.end.line) {
+                        visibleLines.push(lineIndex);
+                        lineIndex++;
+                    }
+                }
+            }
+            const scanResult = getDocumentDecorators(document);
+            scanResult.token.cancel();
+            scanResult.token = new vscode.CancellationTokenSource();
 
-            decoratorProvider(document)
+            decoratorProvider(document, visibleLines, scanResult.token.token)
                 .then(symbolResponse => {
                     const scanResult = getDocumentDecorators(document);
-                    clearEditorDecorations(document, scanResult.map(p => p.textEditorDecorationType));
-                    scanResult.length = 0;
+                    clearEditorDecorations(document, scanResult.decorations.map(p => p.textEditorDecorationType));
+                    scanResult.decorations.length = 0;
 
-                    symbolResponse.images.forEach(p =>
-                        editors.forEach(editor => decorate(showImagePreviewOnGutter, editor, p, scanResult))
-                    );
+                    symbolResponse.images.forEach(p => {
+                        editors.forEach(editor =>
+                            decorate(showImagePreviewOnGutter, editor, p, scanResult.decorations)
+                        );
+                    });
                 })
                 .catch(e => {
                     console.error(e);
@@ -190,11 +215,16 @@ export function imageDecorator(
         })
     );
     context.subscriptions.push(
+        vscode.window.onDidChangeTextEditorVisibleRanges(event => {
+            if (event && event.textEditor && event.textEditor.document) {
+                const document = event.textEditor.document;
+                throttledScan(document, 50);
+            }
+        })
+    );
+    context.subscriptions.push(
         vscode.workspace.onDidOpenTextDocument(e => {
             if (e) {
-                const scanResult = (scanResults[e.uri.toString()] = scanResults[e.uri.toString()] || []);
-                clearEditorDecorations(e, scanResult.map(p => p.textEditorDecorationType));
-                scanResult.length = 0;
                 throttledScan(e);
             }
         })

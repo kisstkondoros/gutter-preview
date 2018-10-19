@@ -94,9 +94,9 @@ async function collectEntries(
     );
 
     const lines = document.getText().split(/\r\n|\r|\n/);
-    var max = lines.length;
-    for (var lineIndex = 0; lineIndex < max; lineIndex++) {
+    for (const lineIndex of request.visibleLines) {
         var line = lines[lineIndex];
+        if (!line) continue;
         if (cancellationToken.isCancellationRequested) return items;
         if (line.length > 20000) {
             continue;

@@ -11,6 +11,7 @@ export interface ImageInfoResponse {
 export interface ImageInfoRequest {
     uri: string;
     fileName: string;
+    visibleLines: number[];
     workspaceFolder: string;
     additionalSourcefolder: string;
 }
