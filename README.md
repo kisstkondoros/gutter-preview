@@ -17,7 +17,7 @@ Shows image preview in the gutter and on hover
 -   0.16.0
     -   Fix image size calculation
     -   Fix image path handling under Windows
-    -   Require vscode version 1.29.0
+    -   Require vscode version 1.28.0
     -   Make use of ImageCache for faster image path verification
     -   Implement partial scan and proper cancellation token handling
 -   0.15.3
