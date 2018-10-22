@@ -32,9 +32,13 @@ export const ImageCache = {
                     postfix: absoluteImageUrl.pathname ? path.parse(absoluteImageUrl.pathname).ext : 'png'
                 });
                 const filePath = tempFile.name;
-                const promise = new Promise<string>(resolve => {
+                const promise = new Promise<string>((resolve, reject) => {
                     if (absoluteImageUrl.protocol && absoluteImageUrl.protocol.startsWith('http')) {
-                        var r = request(absoluteImagePath).on('response', function(res) {
+                        var r = request(absoluteImagePath);
+                        r.on('error', function(err) {
+                            reject(err);
+                        });
+                        r.on('response', function(res) {
                             r.pipe(fs.createWriteStream(filePath)).on('close', () => {
                                 resolve(filePath);
                             });

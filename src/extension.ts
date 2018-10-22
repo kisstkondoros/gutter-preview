@@ -51,24 +51,32 @@ export function activate(context: ExtensionContext) {
         visibleLines: number[],
         token: CancellationToken
     ): Promise<ImageInfoResponse> => {
-        return client.onReady().then(() => {
-            const folder = workspace.getWorkspaceFolder(document.uri);
-            let workspaceFolder;
-            if (folder && folder.uri) {
-                workspaceFolder = folder.uri.fsPath;
-            }
-            return client.sendRequest(
-                GutterPreviewImageRequestType,
-                {
-                    uri: document.uri.toString(),
-                    visibleLines: visibleLines,
-                    fileName: document.fileName,
-                    workspaceFolder: workspaceFolder,
-                    additionalSourcefolder: getConfiguredProperty(document, 'sourceFolder', '')
-                },
-                token
-            );
-        });
+        return client
+            .onReady()
+            .then(() => {
+                const folder = workspace.getWorkspaceFolder(document.uri);
+                let workspaceFolder;
+                if (folder && folder.uri) {
+                    workspaceFolder = folder.uri.fsPath;
+                }
+                return client.sendRequest(
+                    GutterPreviewImageRequestType,
+                    {
+                        uri: document.uri.toString(),
+                        visibleLines: visibleLines,
+                        fileName: document.fileName,
+                        workspaceFolder: workspaceFolder,
+                        additionalSourcefolder: getConfiguredProperty(document, 'sourceFolder', '')
+                    },
+                    token
+                );
+            })
+            .catch(e => {
+                console.warn('Connection was not yet ready when requesting image previews.');
+                return {
+                    images: []
+                };
+            });
     };
     imageDecorator(symbolUpdater, context, client);
 }
