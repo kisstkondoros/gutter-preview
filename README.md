@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.16.2
+    -   Handle error explicitly when requesting resources from the network
 -   0.16.1
     -   Fix typo in readme
 -   0.16.0
