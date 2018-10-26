@@ -85,8 +85,15 @@ export function imageDecorator(
             originalImagePath: absoluteImagePath,
             imagePath: imageInfo.imagePath
         });
+        const toSingleLineDecorationOption = (source: vscode.DecorationOptions): vscode.DecorationOptions => {
+            return {
+                hoverMessage: source.hoverMessage,
+                range: new vscode.Range(source.range.start, source.range.start),
+                renderOptions: source.renderOptions
+            };
+        };
         if (showImagePreviewOnGutter && editor) {
-            editor.setDecorations(textEditorDecorationType, decorations);
+            editor.setDecorations(textEditorDecorationType, decorations.map(p => toSingleLineDecorationOption(p)));
         }
     };
 
