@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.16.4
+    -   Update dependencies
 -   0.16.3
     -   Avoid repeated decorations when word wrapping is enabled
 -   0.16.2
