@@ -1,8 +1,7 @@
+import * as util from 'util';
 import * as vscode from 'vscode';
 import slash = require('slash');
-import * as fs from 'fs';
-import * as probe from 'probe-image-size';
-import 'any-promise/register/es6-promise';
+import * as sizeOf from 'image-size';
 
 import { findEditorsForDocument, clearEditorDecorations } from './util/editorutil';
 
@@ -135,7 +134,8 @@ export function imageDecorator(
                         if (item.originalImagePath.startsWith('data:image')) {
                             result = Promise.resolve(fallback(markedString(item.originalImagePath)));
                         } else {
-                            result = probe(fs.createReadStream(item.imagePath)).then(
+                            const sizeOfPromise = util.promisify(sizeOf)(item.imagePath);
+                            result = sizeOfPromise.then(
                                 result => imageWithSize(markedString(item.imagePath), result),
                                 () => fallback(markedString(item.imagePath))
                             );

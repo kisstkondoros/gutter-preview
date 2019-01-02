@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "es6-promise": "^4.2.5",
-    "probe-image-size": "^4.0.0",
+    "image-size": "^0.6.3",
     "request": "^2.83.0",
     "slash": "^2.0.0",
     "tmp": "0.0.33",
