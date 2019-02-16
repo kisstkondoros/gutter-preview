@@ -90,7 +90,7 @@ async function collectEntries(
     let items = [];
 
     absoluteUrlMappers.forEach(absoluteUrlMapper =>
-        absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolder)
+        absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolder, request.paths)
     );
 
     const lines = document.getText().split(/\r\n|\r|\n/);

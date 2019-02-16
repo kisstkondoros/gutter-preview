@@ -14,6 +14,10 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.17.0
+    -   Add support for path aliases defined by config property or by js/tsconfig
+        -   see path mapping in the [typescript documentation](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) for further details
+            Please note that a restart is necessary after changing the js/tsconfig.json.
 -   0.16.5
     -   Replace probe-image-size with image-size
 -   0.16.4

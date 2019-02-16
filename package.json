@@ -54,6 +54,12 @@
           "scope": "resource",
           "description": "A flag which indicates whether to underline recognized URLs",
           "type": "boolean"
+        },
+        "gutterpreview.paths": {
+          "default": {},
+          "scope": "resource",
+          "description": "Specify path mapping to be computed relative to project root.",
+          "type": "object"
         }
       }
     }
@@ -73,6 +79,9 @@
     "pretty-quick": "^1.6.0",
     "typescript": "^2.3.2",
     "vscode": "^1.1.22"
+  },
+  "peerDependencies": {
+    "typescript": ">=2.x"
   },
   "dependencies": {
     "es6-promise": "^4.2.5",

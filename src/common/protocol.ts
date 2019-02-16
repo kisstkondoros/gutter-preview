@@ -14,6 +14,9 @@ export interface ImageInfoRequest {
     visibleLines: number[];
     workspaceFolder: string;
     additionalSourcefolder: string;
+    paths: {
+        [alias: string]: string | string[];
+    };
 }
 
 export const GutterPreviewImageRequestType: RequestType<
