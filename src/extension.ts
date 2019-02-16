@@ -47,6 +47,9 @@ const loadPathsFromTSConfig = (workspaceFolder: string) => {
                     }
                     const resolvedMapping = [];
                     mapping.forEach((element: string) => {
+                        if (element.endsWith('*')) {
+                            element = element.substring(0, element.length - 1);
+                        }
                         resolvedMapping.push(path.join(baseUrl, element));
                     });
                     paths[aliasWithoutWildcard] = resolvedMapping;

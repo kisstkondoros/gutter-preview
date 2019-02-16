@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.17.2
+    -   Remove trailing wildcard from js/tsconfig path mappings
 -   0.17.1
     -   Add typescript as runtime dependency
 -   0.17.0
