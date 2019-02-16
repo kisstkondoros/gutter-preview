@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.17.1
+    -   Add typescript as runtime dependency
 -   0.17.0
     -   Add support for path aliases defined by config property or by js/tsconfig
         -   see path mapping in the [typescript documentation](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) for further details
