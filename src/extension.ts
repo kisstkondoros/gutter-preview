@@ -16,21 +16,31 @@ import { getConfiguredProperty } from './util/configuration';
 
 const pathCache = {};
 
-const loadPathsFromTSConfig = (workspaceFolder: string) => {
-    if (pathCache[workspaceFolder]) {
-        return pathCache[workspaceFolder];
+const loadPathsFromTSConfig = (workspaceFolder: string, currentFileFolder: string) => {
+    if (pathCache[currentFileFolder]) {
+        return pathCache[currentFileFolder];
     }
     const paths: {} = {};
-    let configResult = ts.readConfigFile(path.join(workspaceFolder, 'tsconfig.json'), ts.sys.readFile);
-    if (configResult.error) {
-        configResult = ts.readConfigFile(path.join(workspaceFolder, 'jsconfig.json'), ts.sys.readFile);
+    let tsConfigFilePath = ts.findConfigFile(currentFileFolder, ts.sys.fileExists, 'tsconfig.json');
+    let jsConfigFilePath = ts.findConfigFile(currentFileFolder, ts.sys.fileExists, 'jsconfig.json');
+    let configFilePath = tsConfigFilePath;
+    if (tsConfigFilePath == null || (jsConfigFilePath != null && jsConfigFilePath.length > tsConfigFilePath.length)) {
+        configFilePath = jsConfigFilePath;
     }
+
+    if (!configFilePath) {
+        return;
+    }
+    let configResult = ts.readConfigFile(configFilePath, ts.sys.readFile);
 
     if (!configResult.error) {
         const config = configResult.config.compilerOptions;
         if (config) {
             const tsConfigPaths = config.paths;
-            const baseUrl: string = config.baseUrl || '.';
+            const baseUrl: string = path.relative(
+                workspaceFolder,
+                path.resolve(path.dirname(configFilePath), config.baseUrl || '.')
+            );
             Object.keys(tsConfigPaths).forEach(alias => {
                 let mapping = tsConfigPaths[alias];
                 const lastIndexOfSlash = alias.lastIndexOf('/');
@@ -57,7 +67,7 @@ const loadPathsFromTSConfig = (workspaceFolder: string) => {
             });
         }
     }
-    pathCache[workspaceFolder] = paths;
+    pathCache[currentFileFolder] = paths;
     return paths;
 };
 
@@ -108,7 +118,9 @@ export function activate(context: ExtensionContext) {
             workspaceFolder = folder.uri.fsPath;
         }
 
-        paths = Object.assign(loadPathsFromTSConfig(workspaceFolder), paths);
+        if (workspaceFolder && document.uri && document.uri.fsPath) {
+            paths = Object.assign(loadPathsFromTSConfig(workspaceFolder, path.dirname(document.uri.fsPath)), paths);
+        }
 
         return client
             .onReady()
