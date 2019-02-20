@@ -16,6 +16,7 @@ Shows image preview in the gutter and on hover
 
 -   0.17.4
     -   Ensure loadPathsFromTSConfig always returns at least an empty object
+    -   Update runtime dependencies
 -   0.17.3
     -   Fix and adjust loading of path aliases from js/tsconfig
 -   0.17.2
