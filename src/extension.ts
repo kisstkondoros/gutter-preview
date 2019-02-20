@@ -16,11 +16,14 @@ import { getConfiguredProperty } from './util/configuration';
 
 const pathCache = {};
 
-const loadPathsFromTSConfig = (workspaceFolder: string, currentFileFolder: string) => {
+const loadPathsFromTSConfig = (
+    workspaceFolder: string,
+    currentFileFolder: string
+): { [name: string]: string | string[] } => {
     if (pathCache[currentFileFolder]) {
         return pathCache[currentFileFolder];
     }
-    const paths: {} = {};
+    const paths: { [name: string]: string | string[] } = {};
     let tsConfigFilePath = ts.findConfigFile(currentFileFolder, ts.sys.fileExists, 'tsconfig.json');
     let jsConfigFilePath = ts.findConfigFile(currentFileFolder, ts.sys.fileExists, 'jsconfig.json');
     let configFilePath = tsConfigFilePath;
@@ -29,7 +32,8 @@ const loadPathsFromTSConfig = (workspaceFolder: string, currentFileFolder: strin
     }
 
     if (!configFilePath) {
-        return;
+        pathCache[currentFileFolder] = paths;
+        return paths;
     }
     let configResult = ts.readConfigFile(configFilePath, ts.sys.readFile);
 
