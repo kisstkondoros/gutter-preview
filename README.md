@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.17.5
+    -   Fix processing of js/tsconfig path section
 -   0.17.4
     -   Ensure loadPathsFromTSConfig always returns at least an empty object
     -   Update runtime dependencies

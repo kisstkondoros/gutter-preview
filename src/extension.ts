@@ -40,7 +40,7 @@ const loadPathsFromTSConfig = (
     if (!configResult.error) {
         const config = configResult.config.compilerOptions;
         if (config) {
-            const tsConfigPaths = config.paths;
+            const tsConfigPaths = config.paths || {};
             const baseUrl: string = path.relative(
                 workspaceFolder,
                 path.resolve(path.dirname(configFilePath), config.baseUrl || '.')
