@@ -8,6 +8,7 @@ import { findEditorsForDocument, clearEditorDecorations } from './util/editoruti
 import { ImageInfoResponse, ImageInfo } from './common/protocol';
 import { LanguageClient } from 'vscode-languageclient';
 import { getConfiguredProperty } from './util/configuration';
+import { isTemplateSpan } from 'typescript';
 
 interface Decoration {
     textEditorDecorationType: vscode.TextEditorDecorationType;
@@ -118,21 +119,36 @@ export function imageDecorator(
                 if (matchingDecoratorAndItem) {
                     const item = matchingDecoratorAndItem.item;
 
-                    var fallback = (markedString: vscode.MarkedString) => {
-                        let resultset: vscode.MarkedString[] = [markedString];
-                        return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+                    var fallback = (markedString: string) => {
+                        const contents = new vscode.MarkdownString(markedString);
+                        contents.isTrusted = true;
+                        return new vscode.Hover(contents, matchingDecoratorAndItem.decoration.range);
                     };
                     var imageWithSize = (markedString, result) => {
-                        let resultset: vscode.MarkedString[] = [
-                            markedString + `  \r\n${result.width}x${result.height}`
-                        ];
-                        return new vscode.Hover(resultset, document.getWordRangeAtPosition(position));
+                        markedString += `  \r\n${result.width}x${result.height}`;
+                        const contents = new vscode.MarkdownString(markedString);
+                        contents.isTrusted = true;
+                        return new vscode.Hover(contents, matchingDecoratorAndItem.decoration.range);
                     };
-                    let markedString: (string) => vscode.MarkedString = imagePath =>
-                        `![${imagePath}](${imagePath}|height=${maxHeight})`;
+                    let markedString = (imagePath: string, withOpenFileCommand: boolean = true) => {
+                        let result = `![${imagePath}](${imagePath}|height=${maxHeight})`;
+                        if (
+                            withOpenFileCommand &&
+                            (item.originalImagePath.indexOf('://') == -1 ||
+                                item.originalImagePath.startsWith('file://'))
+                        ) {
+                            const uri = vscode.Uri.file(item.originalImagePath);
+                            const args = [uri];
+                            const openFileCommandUrl = vscode.Uri.parse(
+                                `command:revealInExplorer?${encodeURIComponent(JSON.stringify(args))}`
+                            );
+                            result += `  \r\n[Reveal in Side Bar](${openFileCommandUrl} "Reveal in Side Bar")`;
+                        }
+                        return result;
+                    };
                     try {
                         if (item.originalImagePath.startsWith('data:image')) {
-                            result = Promise.resolve(fallback(markedString(item.originalImagePath)));
+                            result = Promise.resolve(fallback(markedString(item.originalImagePath, false)));
                         } else {
                             const sizeOfPromise = util.promisify(sizeOf)(item.imagePath);
                             result = sizeOfPromise.then(

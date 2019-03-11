@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.18.0
+    -   Add "Reveal in Side Bar" link to hover message
 -   0.17.5
     -   Fix processing of js/tsconfig path section
 -   0.17.4
