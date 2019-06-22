@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.19.2
+    -   Downgrade vscode-languageclient and -server to 5.21
 -   0.19.1
     -   Update dependencies
 -   0.19.0
