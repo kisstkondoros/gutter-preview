@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.19.3
+    -   Add special case extracting urls from between braces for latex
 -   0.19.2
     -   Downgrade vscode-languageclient and -server to 5.21
 -   0.19.1

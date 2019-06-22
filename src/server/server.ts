@@ -108,6 +108,18 @@ async function collectEntries(
                 return recognizer.recognize(lineIndex, line);
             })
             .filter(item => !!item)
+            .map(matches => {
+                if (document.languageId == 'latex') {
+                    matches.forEach(match => {
+                        if (match.url.startsWith('{') && match.url.endsWith('}')) {
+                            match.url = match.url.substring(1, match.url.length - 1);
+                            match.start += 1;
+                            match.end -= 1;
+                        }
+                    });
+                }
+                return matches;
+            })
             .forEach(urlMatches => {
                 if (cancellationToken.isCancellationRequested) return;
                 urlMatches.forEach(urlMatch => {
