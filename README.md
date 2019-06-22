@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.19.1
+    -   Update dependencies
 -   0.19.0
     -   Add ico to accepted extensions
 -   0.18.0
