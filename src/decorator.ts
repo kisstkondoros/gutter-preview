@@ -131,6 +131,10 @@ export function imageDecorator(
                         return new vscode.Hover(contents, matchingDecoratorAndItem.decoration.range);
                     };
                     let markedString = (imagePath: string, withOpenFileCommand: boolean = true) => {
+                        if (imagePath.indexOf('://') == -1) {
+                            imagePath = 'file://' + imagePath;
+                        }
+
                         let result = `![${imagePath}](${imagePath}|height=${maxHeight})`;
                         if (
                             withOpenFileCommand &&
