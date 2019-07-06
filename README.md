@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.19.4
+    -   Prepend file protocol to image url in the hover preview (bug fix for Remote - WSL)
 -   0.19.3
     -   Add special case extracting urls from between braces for latex
 -   0.19.2
