@@ -131,7 +131,7 @@ export function imageDecorator(
                         return new vscode.Hover(contents, matchingDecoratorAndItem.decoration.range);
                     };
                     let markedString = (imagePath: string, withOpenFileCommand: boolean = true) => {
-                        if (imagePath.indexOf('://') == -1) {
+                        if (imagePath.indexOf('://') == -1 && !item.originalImagePath.startsWith('data:image')) {
                             imagePath = 'file://' + imagePath;
                         }
 
