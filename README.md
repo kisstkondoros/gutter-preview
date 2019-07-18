@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.19.5
+    -   Fix data uri handling (contribution by @rafaelkendy)
 -   0.19.4
     -   Prepend file protocol to image url in the hover preview (bug fix for Remote - WSL)
 -   0.19.3
