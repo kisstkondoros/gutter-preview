@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.20.0
+    -   Add currentColor configuration support for SVGs
 -   0.19.5
     -   Fix data uri handling (contribution by @rafaelkendy)
 -   0.19.4
