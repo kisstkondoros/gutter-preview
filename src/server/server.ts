@@ -88,7 +88,7 @@ async function collectEntries(
     cancellationToken: CancellationToken
 ): Promise<ImageInfo[]> {
     let items = [];
-
+    ImageCache.setCurrentColor(request.currentColor);
     absoluteUrlMappers.forEach(absoluteUrlMapper =>
         absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolder, request.paths)
     );

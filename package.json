@@ -60,6 +60,12 @@
           "scope": "resource",
           "description": "Specify path mapping to be computed relative to project root.",
           "type": "object"
+        },
+        "gutterpreview.currentColorForSVG": {
+          "default": "white",
+          "scope": "resource",
+          "description": "The default color to be used in svg previews",
+          "type": "string"
         }
       }
     }

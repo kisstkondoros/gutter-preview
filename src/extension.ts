@@ -136,6 +136,7 @@ export function activate(context: ExtensionContext) {
                         visibleLines: visibleLines,
                         fileName: document.fileName,
                         workspaceFolder: workspaceFolder,
+                        currentColor: getConfiguredProperty(document, 'currentColorForSVG', ''),
                         additionalSourcefolder: getConfiguredProperty(document, 'sourceFolder', ''),
                         paths: paths
                     },

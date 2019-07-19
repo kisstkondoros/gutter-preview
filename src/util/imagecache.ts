@@ -4,12 +4,19 @@ import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
 import { copyFile } from './fileutil';
+import { promisify } from 'util';
 
 tmp.setGracefulCleanup();
 
 let imageCache: Map<String, Thenable<string>> = new Map();
-
+let currentColor: string;
 export const ImageCache = {
+    setCurrentColor: (color: string) => {
+        if (currentColor != color) {
+            currentColor = color;
+            imageCache.clear();
+        }
+    },
     delete: (key: string) => {
         imageCache.delete(key);
     },
@@ -23,6 +30,7 @@ export const ImageCache = {
         return imageCache.has(key);
     },
     store: (absoluteImagePath: string): Thenable<string> => {
+        const currentColorForClojure: string = currentColor;
         if (ImageCache.has(absoluteImagePath)) {
             return ImageCache.get(absoluteImagePath);
         } else {
@@ -59,8 +67,28 @@ export const ImageCache = {
                     }
                 });
                 ImageCache.set(absoluteImagePath, promise);
+                const injectStyles = (path: string) => {
+                    return new Promise<string>((res, rej) => {
+                        if (path.endsWith('.svg')) {
+                            const read = promisify(fs.readFile);
+                            const write = promisify(fs.writeFile);
 
-                return promise;
+                            read(path)
+                                .then(data => {
+                                    const original = data.toString('UTF-8');
+                                    return original.replace('<svg', `<svg style="color:${currentColorForClojure}"`);
+                                })
+                                .then(data => {
+                                    return write(path, data);
+                                })
+                                .then(() => res(path))
+                                .catch(err => rej(err));
+                        } else {
+                            res(path);
+                        }
+                    });
+                };
+                return promise.then(p => injectStyles(p));
             } catch (error) {}
         }
     },
