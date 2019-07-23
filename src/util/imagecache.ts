@@ -1,5 +1,5 @@
 import * as tmp from 'tmp';
-import * as request from 'request';
+import fetch from 'node-fetch';
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
@@ -42,23 +42,28 @@ export const ImageCache = {
                 const filePath = tempFile.name;
                 const promise = new Promise<string>((resolve, reject) => {
                     if (absoluteImageUrl.protocol && absoluteImageUrl.protocol.startsWith('http')) {
-                        var r = request(absoluteImagePath);
-                        r.on('error', function(err) {
-                            reject(err);
-                        });
-                        r.on('response', function(res) {
-                            r.pipe(fs.createWriteStream(filePath)).on('close', () => {
+                        fetch(absoluteImagePath).then(resp => {
+                            if (!resp.ok) {
+                                reject(resp.statusText);
+                                return;
+                            }
+                            const dest = fs.createWriteStream(filePath);
+                            resp.body.pipe(dest);
+                            resp.body.on("error", (err) => {
+                                reject(err);
+                            });
+                            dest.on("finish", function () {
                                 resolve(filePath);
                             });
-                        });
+                        })
                     } else {
                         try {
                             const handle = fs.watch(absoluteImagePath, function fileChangeListener() {
                                 handle.close();
-                                fs.unlink(filePath, () => {});
+                                fs.unlink(filePath, () => { });
                                 ImageCache.delete(absoluteImagePath);
                             });
-                        } catch (e) {}
+                        } catch (e) { }
                         copyFile(absoluteImagePath, filePath, err => {
                             if (!err) {
                                 resolve(filePath);
@@ -89,13 +94,13 @@ export const ImageCache = {
                     });
                 };
                 return promise.then(p => injectStyles(p));
-            } catch (error) {}
+            } catch (error) { }
         }
     },
 
     cleanup: () => {
         imageCache.forEach(value => {
-            value.then(tmpFile => fs.unlink(tmpFile, () => {}));
+            value.then(tmpFile => fs.unlink(tmpFile, () => { }));
         });
         imageCache.clear();
     }

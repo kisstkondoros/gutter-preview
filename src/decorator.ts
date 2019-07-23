@@ -1,14 +1,13 @@
 import * as util from 'util';
 import * as vscode from 'vscode';
-import slash = require('slash');
-import * as sizeOf from 'image-size';
+import slash from 'slash';
+import sizeOf from 'image-size';
 
 import { findEditorsForDocument, clearEditorDecorations } from './util/editorutil';
 
 import { ImageInfoResponse, ImageInfo } from './common/protocol';
 import { LanguageClient } from 'vscode-languageclient';
 import { getConfiguredProperty } from './util/configuration';
-import { isTemplateSpan } from 'typescript';
 
 interface Decoration {
     textEditorDecorationType: vscode.TextEditorDecorationType;
@@ -116,7 +115,7 @@ export function imageDecorator(
                     })
                     .find(pair => pair.decoration != null);
 
-                if (matchingDecoratorAndItem) {
+                if (matchingDecoratorAndItem && matchingDecoratorAndItem.decoration) {
                     const item = matchingDecoratorAndItem.item;
 
                     var fallback = (markedString: string) => {

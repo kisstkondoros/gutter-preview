@@ -1,5 +1,4 @@
 import { AbsoluteUrlMapper } from './mapper';
-import { TextDocument } from 'vscode-languageserver';
 
 export const dataUrlMapper: AbsoluteUrlMapper = {
     map(fileName: string, imagePath: string) {
@@ -9,5 +8,5 @@ export const dataUrlMapper: AbsoluteUrlMapper = {
         }
         return absoluteImagePath;
     },
-    refreshConfig() {}
+    refreshConfig() { }
 };

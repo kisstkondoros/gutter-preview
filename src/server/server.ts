@@ -128,7 +128,7 @@ async function collectEntries(
                         .map(mapper => {
                             try {
                                 return mapper.map(request.fileName, urlMatch.url);
-                            } catch (e) {}
+                            } catch (e) { }
                         })
                         .filter(item => nonNullOrEmpty(item));
 

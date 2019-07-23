@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as ts from 'typescript';
+import { loadConfig } from 'tsconfig-paths/lib/config-loader';
 
 import {
     ServerOptions,
@@ -7,7 +7,7 @@ import {
     ErrorAction,
     Message,
     LanguageClientOptions,
-    LanguageClient
+    LanguageClient,
 } from 'vscode-languageclient';
 import {
     ExtensionContext,
@@ -34,59 +34,46 @@ const loadPathsFromTSConfig = (
         return pathCache[currentFileFolder];
     }
     const paths: { [name: string]: string | string[] } = {};
-    let tsConfigFilePath = ts.findConfigFile(currentFileFolder, ts.sys.fileExists, 'tsconfig.json');
-    let jsConfigFilePath = ts.findConfigFile(currentFileFolder, ts.sys.fileExists, 'jsconfig.json');
-    let configFilePath = tsConfigFilePath;
-    if (tsConfigFilePath == null || (jsConfigFilePath != null && jsConfigFilePath.length > tsConfigFilePath.length)) {
-        configFilePath = jsConfigFilePath;
-    }
+    const configResult = loadConfig(currentFileFolder);
 
-    if (!configFilePath) {
-        pathCache[currentFileFolder] = paths;
-        return paths;
-    }
-    let configResult = ts.readConfigFile(configFilePath, ts.sys.readFile);
-
-    if (!configResult.error) {
-        const config = configResult.config.compilerOptions;
-        if (config) {
-            const tsConfigPaths = config.paths || {};
-            const baseUrl: string = path.relative(
-                workspaceFolder,
-                path.resolve(path.dirname(configFilePath), config.baseUrl || '.')
-            );
-            Object.keys(tsConfigPaths).forEach(alias => {
-                let mapping = tsConfigPaths[alias];
-                const lastIndexOfSlash = alias.lastIndexOf('/');
-                let aliasWithoutWildcard = alias;
-                if (lastIndexOfSlash > 0) {
-                    aliasWithoutWildcard = alias.substr(0, lastIndexOfSlash);
+    if (configResult.resultType == "success") {
+        const tsConfigPaths = configResult.paths || {};
+        const baseUrl: string = path.relative(
+            workspaceFolder,
+            configResult.absoluteBaseUrl
+        );
+        Object.keys(tsConfigPaths).forEach(alias => {
+            let mapping = tsConfigPaths[alias];
+            const lastIndexOfSlash = alias.lastIndexOf('/');
+            let aliasWithoutWildcard = alias;
+            if (lastIndexOfSlash > 0) {
+                aliasWithoutWildcard = alias.substr(0, lastIndexOfSlash);
+            }
+            if (aliasWithoutWildcard == '*') {
+                aliasWithoutWildcard = '';
+            }
+            if (!paths[aliasWithoutWildcard]) {
+                if (!Array.isArray(mapping)) {
+                    mapping = [mapping];
                 }
-                if (aliasWithoutWildcard == '*') {
-                    aliasWithoutWildcard = '';
-                }
-                if (!paths[aliasWithoutWildcard]) {
-                    if (!Array.isArray(mapping)) {
-                        mapping = [mapping];
+                const resolvedMapping = [];
+                mapping.forEach((element: string) => {
+                    if (element.endsWith('*')) {
+                        element = element.substring(0, element.length - 1);
                     }
-                    const resolvedMapping = [];
-                    mapping.forEach((element: string) => {
-                        if (element.endsWith('*')) {
-                            element = element.substring(0, element.length - 1);
-                        }
-                        resolvedMapping.push(path.join(baseUrl, element));
-                    });
-                    paths[aliasWithoutWildcard] = resolvedMapping;
-                }
-            });
-        }
+                    resolvedMapping.push(path.join(baseUrl, element));
+                });
+                paths[aliasWithoutWildcard] = resolvedMapping;
+            }
+        });
     }
+
     pathCache[currentFileFolder] = paths;
     return paths;
 };
 
 export function activate(context: ExtensionContext) {
-    let serverModule = context.asAbsolutePath(path.join('out', 'src', 'server', 'server.js'));
+    let serverModule = context.asAbsolutePath(path.join('dist', 'server.js'));
 
     let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 
