@@ -9,7 +9,17 @@ import {
     LanguageClientOptions,
     LanguageClient
 } from 'vscode-languageclient';
-import { ExtensionContext, window, workspace, TextDocument, CancellationToken } from 'vscode';
+import {
+    ExtensionContext,
+    window,
+    workspace,
+    TextDocument,
+    CancellationToken,
+    commands,
+    Position,
+    Uri,
+    Location
+} from 'vscode';
 import { ImageInfoResponse, GutterPreviewImageRequestType } from './common/protocol';
 import { imageDecorator } from './decorator';
 import { getConfiguredProperty } from './util/configuration';
@@ -126,13 +136,12 @@ export function activate(context: ExtensionContext) {
             paths = Object.assign(loadPathsFromTSConfig(workspaceFolder, path.dirname(document.uri.fsPath)), paths);
         }
 
-        return client
-            .onReady()
-            .then(() => {
+        const getImageInfo = (uri: Uri, visibleLines: number[]) => {
+            return client.onReady().then(() => {
                 return client.sendRequest(
                     GutterPreviewImageRequestType,
                     {
-                        uri: document.uri.toString(),
+                        uri: uri.toString(),
                         visibleLines: visibleLines,
                         fileName: document.fileName,
                         workspaceFolder: workspaceFolder,
@@ -142,9 +151,67 @@ export function activate(context: ExtensionContext) {
                     },
                     token
                 );
+            });
+        };
+
+        const propertyAccessRegex = /(\.[a-zA-Z_$0-9]+)|(\$[a-zA-Z_$0-9]+)/g;
+        const requests: Array<Thenable<ImageInfoResponse>> = [];
+        for (const lineIndex of visibleLines) {
+            var line = document.lineAt(lineIndex).text;
+            if (!line) continue;
+            if (token.isCancellationRequested) return Promise.reject();
+            if (line.length > 20000) {
+                continue;
+            }
+
+            let matches;
+            while ((matches = propertyAccessRegex.exec(line)) != null) {
+                const position = new Position(
+                    lineIndex,
+                    matches.index + 1 /* DOT or $ sign */ + 1 /* to be inside the word */
+                );
+                const range = document.getWordRangeAtPosition(position);
+                if (!range) continue;
+
+                const pendingDefinitionRequest = commands
+                    .executeCommand('vscode.executeDefinitionProvider', document.uri, position)
+                    .then((definitions: Location[]) => {
+                        const pendingRequests = definitions.map(definition => {
+                            if (definition && definition.range && definition.range.isSingleLine) {
+                                return workspace.openTextDocument(definition.uri).then(() => {
+                                    return getImageInfo(definition.uri, [definition.range.start.line]).then(
+                                        response => {
+                                            response.images.forEach(p => (p.range = range));
+                                            return response;
+                                        }
+                                    );
+                                });
+                            }
+                        });
+                        return Promise.all(pendingRequests.filter(r => !!r)).then(responses => {
+                            return {
+                                images: responses
+                                    .map(response => response.images)
+                                    .reduce((prev, curr) => prev.concat(...curr), [])
+                            } as ImageInfoResponse;
+                        });
+                    });
+                requests.push(pendingDefinitionRequest);
+            }
+        }
+
+        requests.push(getImageInfo(document.uri, visibleLines));
+        return Promise.all(requests)
+            .then(responses => {
+                return {
+                    images: responses.map(response => response.images).reduce((prev, curr) => prev.concat(...curr), [])
+                };
             })
             .catch(e => {
-                console.warn('Connection was not yet ready when requesting image previews.');
+                console.warn(
+                    'Connection was not yet ready when requesting image previews or an unexpected error occured.'
+                );
+                console.warn(e);
                 return {
                     images: []
                 };
