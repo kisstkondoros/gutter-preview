@@ -154,49 +154,52 @@ export function activate(context: ExtensionContext) {
             });
         };
 
-        const propertyAccessRegex = /(\.[a-zA-Z_$0-9]+)|(\$[a-zA-Z_$0-9]+)/g;
         const requests: Array<Thenable<ImageInfoResponse>> = [];
-        for (const lineIndex of visibleLines) {
-            var line = document.lineAt(lineIndex).text;
-            if (!line) continue;
-            if (token.isCancellationRequested) return Promise.reject();
-            if (line.length > 20000) {
-                continue;
-            }
+        const isReferenceLookupEnabled = getConfiguredProperty(document, 'enableReferenceLookup', false);
+        if (isReferenceLookupEnabled) {
+            const propertyAccessRegex = /(\.[a-zA-Z_$0-9]+)|(\$[a-zA-Z_$0-9]+)/g;
+            for (const lineIndex of visibleLines) {
+                var line = document.lineAt(lineIndex).text;
+                if (!line) continue;
+                if (token.isCancellationRequested) return Promise.reject();
+                if (line.length > 20000) {
+                    continue;
+                }
 
-            let matches;
-            while ((matches = propertyAccessRegex.exec(line)) != null) {
-                const position = new Position(
-                    lineIndex,
-                    matches.index + 1 /* DOT or $ sign */ + 1 /* to be inside the word */
-                );
-                const range = document.getWordRangeAtPosition(position);
-                if (!range) continue;
+                let matches;
+                while ((matches = propertyAccessRegex.exec(line)) != null) {
+                    const position = new Position(
+                        lineIndex,
+                        matches.index + 1 /* DOT or $ sign */ + 1 /* to be inside the word */
+                    );
+                    const range = document.getWordRangeAtPosition(position);
+                    if (!range) continue;
 
-                const pendingDefinitionRequest = commands
-                    .executeCommand('vscode.executeDefinitionProvider', document.uri, position)
-                    .then((definitions: Location[]) => {
-                        const pendingRequests = definitions.map(definition => {
-                            if (definition && definition.range && definition.range.isSingleLine) {
-                                return workspace.openTextDocument(definition.uri).then(() => {
-                                    return getImageInfo(definition.uri, [definition.range.start.line]).then(
-                                        response => {
-                                            response.images.forEach(p => (p.range = range));
-                                            return response;
-                                        }
-                                    );
-                                });
-                            }
+                    const pendingDefinitionRequest = commands
+                        .executeCommand('vscode.executeDefinitionProvider', document.uri, position)
+                        .then((definitions: Location[]) => {
+                            const pendingRequests = definitions.map(definition => {
+                                if (definition && definition.range && definition.range.isSingleLine) {
+                                    return workspace.openTextDocument(definition.uri).then(() => {
+                                        return getImageInfo(definition.uri, [definition.range.start.line]).then(
+                                            response => {
+                                                response.images.forEach(p => (p.range = range));
+                                                return response;
+                                            }
+                                        );
+                                    });
+                                }
+                            });
+                            return Promise.all(pendingRequests.filter(r => !!r)).then(responses => {
+                                return {
+                                    images: responses
+                                        .map(response => response.images)
+                                        .reduce((prev, curr) => prev.concat(...curr), [])
+                                } as ImageInfoResponse;
+                            });
                         });
-                        return Promise.all(pendingRequests.filter(r => !!r)).then(responses => {
-                            return {
-                                images: responses
-                                    .map(response => response.images)
-                                    .reduce((prev, curr) => prev.concat(...curr), [])
-                            } as ImageInfoResponse;
-                        });
-                    });
-                requests.push(pendingDefinitionRequest);
+                    requests.push(pendingDefinitionRequest);
+                }
             }
         }
 

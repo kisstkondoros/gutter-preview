@@ -66,6 +66,12 @@
           "scope": "resource",
           "description": "The default color to be used in svg previews",
           "type": "string"
+        },
+        "gutterpreview.enableReferenceLookup": {
+          "default": false,
+          "scope": "resource",
+          "description": "A flag which indicates whether resources should be resolved from references",
+          "type": "boolean"
         }
       }
     }
