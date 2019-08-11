@@ -178,9 +178,11 @@ export function activate(context: ExtensionContext) {
                     const pendingDefinitionRequest = commands
                         .executeCommand('vscode.executeDefinitionProvider', document.uri, position)
                         .then((definitions: Location[]) => {
+                            if (token.isCancellationRequested) return Promise.reject();
                             const pendingRequests = definitions.map(definition => {
                                 if (definition && definition.range && definition.range.isSingleLine) {
                                     return workspace.openTextDocument(definition.uri).then(() => {
+                                        if (token.isCancellationRequested) return Promise.reject();
                                         return getImageInfo(definition.uri, [definition.range.start.line]).then(
                                             response => {
                                                 response.images.forEach(p => (p.range = range));
