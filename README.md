@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.22.1
+    -   Remove unnecessary files from the package
 -   0.22.0
     -   Use webpack to bundle the extension
     -   Update to vscode@1.37.0
