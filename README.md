@@ -14,6 +14,10 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.22.0
+    -   Use webpack to bundle the extension
+    -   Update to vscode@1.37.0
+    -   Check CancellationToken while collecting resource references
 -   0.21.1
     -   Disable reference resolution by default
 -   0.21.0
