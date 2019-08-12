@@ -9,7 +9,7 @@
   "displayName": "Image preview",
   "icon": "images/logo.png",
   "engines": {
-    "vscode": "^1.30.0"
+    "vscode": "^1.37.0"
   },
   "repository": {
     "type": "git",
@@ -87,7 +87,7 @@
     "@types/node": "^12.6.8",
     "@types/node-fetch": "^2.5.0",
     "@types/tmp": "0.1.0",
-    "@types/vscode": "^1.36.0",
+    "@types/vscode": "^1.37.0",
     "husky": "^3.0.1",
     "node-fetch": "^2.6.0",
     "prettier": "^1.18.2",
