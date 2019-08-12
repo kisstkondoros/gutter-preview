@@ -11,6 +11,6 @@ gruntfile.js
 tsconfig.json
 vsc-extension-quickstart.md
 testfiles
-images
+!images
 !dist/extension.js
 !dist/server.js
