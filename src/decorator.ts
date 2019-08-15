@@ -52,12 +52,10 @@ export function imageDecorator(
     ) => {
         let decorations: vscode.DecorationOptions[] = [];
 
-        const normalizedPath = imageInfo.imagePath.startsWith('data:')
-            ? imageInfo.imagePath
-            : 'file://' + slash(imageInfo.imagePath);
-        let uri: vscode.Uri = vscode.Uri.parse(normalizedPath);
+        const uri = imageInfo.imagePath.startsWith('data:')
+            ? vscode.Uri.parse(imageInfo.imagePath)
+            : vscode.Uri.file(slash(imageInfo.imagePath));
 
-        const absoluteImagePath = imageInfo.originalImagePath;
         const underlineEnabled = getConfiguredProperty(
             editor && editor.document ? editor.document : undefined,
             'showUnderline',
@@ -81,7 +79,7 @@ export function imageDecorator(
         lastScanResult.push({
             textEditorDecorationType,
             decorations,
-            originalImagePath: absoluteImagePath,
+            originalImagePath: imageInfo.originalImagePath,
             imagePath: imageInfo.imagePath
         });
         const toSingleLineDecorationOption = (source: vscode.DecorationOptions): vscode.DecorationOptions => {
@@ -131,14 +129,13 @@ export function imageDecorator(
                     };
                     let markedString = (imagePath: string, withOpenFileCommand: boolean = true) => {
                         if (imagePath.indexOf('://') == -1 && !imagePath.startsWith('data:image')) {
-                            imagePath = 'file://' + imagePath;
+                            imagePath = vscode.Uri.file(imagePath).toString();
                         }
 
                         let result = `![${imagePath}](${imagePath}|height=${maxHeight})`;
                         if (
                             withOpenFileCommand &&
-                            (item.originalImagePath.indexOf('://') == -1 ||
-                                item.originalImagePath.startsWith('file://'))
+                            (item.originalImagePath.indexOf('://') == -1)
                         ) {
                             const uri = vscode.Uri.file(item.originalImagePath);
                             const args = [uri];

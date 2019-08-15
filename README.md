@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.22.2
+    -   Fix file URI handling
 -   0.22.1
     -   Remove unnecessary files from the package
 -   0.22.0
