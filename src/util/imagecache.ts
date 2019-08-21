@@ -42,7 +42,7 @@ export const ImageCache = {
                 const filePath = tempFile.name;
                 const promise = new Promise<string>((resolve, reject) => {
                     if (absoluteImageUrl.protocol && absoluteImageUrl.protocol.startsWith('http')) {
-                        fetch(absoluteImagePath).then(resp => {
+                        fetch(new url.URL(absoluteImagePath).toString()).then(resp => {
                             if (!resp.ok) {
                                 reject(resp.statusText);
                                 return;
@@ -55,7 +55,7 @@ export const ImageCache = {
                             dest.on("finish", function () {
                                 resolve(filePath);
                             });
-                        })
+                        }).catch(err => reject(err));
                     } else {
                         try {
                             const handle = fs.watch(absoluteImagePath, function fileChangeListener() {
