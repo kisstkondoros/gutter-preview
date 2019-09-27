@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.23.0
+    -   Added webp to acceptedExtensions (contribution by @Afsar-Pasha)
 -   0.22.3
     -   Fix handling of special characters in URIs
 -   0.22.2
