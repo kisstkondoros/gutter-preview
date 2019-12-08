@@ -74,7 +74,7 @@ export const ImageCache = {
                 ImageCache.set(absoluteImagePath, promise);
                 const injectStyles = (path: string) => {
                     return new Promise<string>((res, rej) => {
-                        if (path.endsWith('.svg')) {
+                        if (path.endsWith('.svg') && currentColorForClojure && currentColorForClojure != "") {
                             const read = promisify(fs.readFile);
                             const write = promisify(fs.writeFile);
 
