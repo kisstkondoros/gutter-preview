@@ -14,6 +14,10 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.25.0
+    -   Add "Open Containing Folder" link to hover message
+-   0.24.0
+    -   Skip style injection for svg-s if currentColorForSVG is set to empty string
 -   0.23.0
     -   Added webp to acceptedExtensions (contribution by @Afsar-Pasha)
 -   0.22.3

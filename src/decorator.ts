@@ -142,7 +142,12 @@ export function imageDecorator(
                             const openFileCommandUrl = vscode.Uri.parse(
                                 `command:revealInExplorer?${encodeURIComponent(JSON.stringify(args))}`
                             );
+                            const browseFileCommandUrl = vscode.Uri.parse(
+                                `command:revealFileInOS?${encodeURIComponent(JSON.stringify(args))}`
+                            );
                             result += `  \r\n[Reveal in Side Bar](${openFileCommandUrl} "Reveal in Side Bar")`;
+                            result += `  \r\n`;
+                            result += `  \r\n[Open Containing Folder](${browseFileCommandUrl} "Open Containing Folder")`;
                         }
                         return result;
                     };
