@@ -15,8 +15,8 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
         let absoluteImagePath: string;
 
         if (this.workspaceFolder) {
-            let rootPath = url.parse(this.workspaceFolder);
-            const pathName = url.parse(imagePath).pathname;
+            let rootPath = path.normalize(this.workspaceFolder);
+            const pathName = path.normalize(imagePath);
             if (pathName) {
                 const pathsToTest = [pathName];
                 if (this.paths['']) {
@@ -45,11 +45,11 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
 
                 for (let index = 0; index < pathsToTest.length; index++) {
                     const testPath = pathsToTest[index];
-                    let testImagePath = path.join(rootPath.href, testPath);
+                    let testImagePath = path.join(rootPath, testPath);
                     if (ImageCache.has(testImagePath) || fs.existsSync(testImagePath)) {
                         absoluteImagePath = testImagePath;
                     } else {
-                        let testImagePath = path.join(rootPath.href, this.additionalSourceFolder, testPath);
+                        let testImagePath = path.join(rootPath, this.additionalSourceFolder, testPath);
                         if (ImageCache.has(testImagePath) || fs.existsSync(testImagePath)) {
                             absoluteImagePath = testImagePath;
                         }
