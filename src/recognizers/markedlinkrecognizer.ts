@@ -7,8 +7,8 @@ export const markedLinkRecognizer: ImagePathRecognizer = {
         const result = [];
         while ((match = pattern.exec(line))) {
             if (match.length > 0) {
-                const imagePath = match[1];
-                const matchIndex = match.index + match[0].length + 1;
+                const imagePath = match[2];
+                const matchIndex = match.index + match[1].length + 1;
                 result.push({
                     url: imagePath,
                     lineIndex,
