@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.26.0
+    -   Support for paths with spaces in markdown's image syntax (contribution by @episage)
 -   0.25.0
     -   Add "Open Containing Folder" link to hover message
 -   0.24.0
