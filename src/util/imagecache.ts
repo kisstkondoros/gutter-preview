@@ -37,34 +37,36 @@ export const ImageCache = {
             try {
                 const absoluteImageUrl = url.parse(absoluteImagePath);
                 const tempFile = tmp.fileSync({
-                    postfix: absoluteImageUrl.pathname ? path.parse(absoluteImageUrl.pathname).ext : 'png'
+                    postfix: absoluteImageUrl.pathname ? path.parse(absoluteImageUrl.pathname).ext : 'png',
                 });
                 const filePath = tempFile.name;
                 const promise = new Promise<string>((resolve, reject) => {
                     if (absoluteImageUrl.protocol && absoluteImageUrl.protocol.startsWith('http')) {
-                        fetch(new url.URL(absoluteImagePath).toString()).then(resp => {
-                            if (!resp.ok) {
-                                reject(resp.statusText);
-                                return;
-                            }
-                            const dest = fs.createWriteStream(filePath);
-                            resp.body.pipe(dest);
-                            resp.body.on("error", (err) => {
-                                reject(err);
-                            });
-                            dest.on("finish", function () {
-                                resolve(filePath);
-                            });
-                        }).catch(err => reject(err));
+                        fetch(new url.URL(absoluteImagePath).toString())
+                            .then((resp) => {
+                                if (!resp.ok) {
+                                    reject(resp.statusText);
+                                    return;
+                                }
+                                const dest = fs.createWriteStream(filePath);
+                                resp.body.pipe(dest);
+                                resp.body.on('error', (err) => {
+                                    reject(err);
+                                });
+                                dest.on('finish', function () {
+                                    resolve(filePath);
+                                });
+                            })
+                            .catch((err) => reject(err));
                     } else {
                         try {
                             const handle = fs.watch(absoluteImagePath, function fileChangeListener() {
                                 handle.close();
-                                fs.unlink(filePath, () => { });
+                                fs.unlink(filePath, () => {});
                                 ImageCache.delete(absoluteImagePath);
                             });
-                        } catch (e) { }
-                        copyFile(absoluteImagePath, filePath, err => {
+                        } catch (e) {}
+                        copyFile(absoluteImagePath, filePath, (err) => {
                             if (!err) {
                                 resolve(filePath);
                             }
@@ -74,34 +76,34 @@ export const ImageCache = {
                 ImageCache.set(absoluteImagePath, promise);
                 const injectStyles = (path: string) => {
                     return new Promise<string>((res, rej) => {
-                        if (path.endsWith('.svg') && currentColorForClojure && currentColorForClojure != "") {
+                        if (path.endsWith('.svg') && currentColorForClojure && currentColorForClojure != '') {
                             const read = promisify(fs.readFile);
                             const write = promisify(fs.writeFile);
 
                             read(path)
-                                .then(data => {
-                                    const original = data.toString('UTF-8');
+                                .then((data) => {
+                                    const original = data.toString('utf-8');
                                     return original.replace('<svg', `<svg style="color:${currentColorForClojure}"`);
                                 })
-                                .then(data => {
+                                .then((data) => {
                                     return write(path, data);
                                 })
                                 .then(() => res(path))
-                                .catch(err => rej(err));
+                                .catch((err) => rej(err));
                         } else {
                             res(path);
                         }
                     });
                 };
-                return promise.then(p => injectStyles(p));
-            } catch (error) { }
+                return promise.then((p) => injectStyles(p));
+            } catch (error) {}
         }
     },
 
     cleanup: () => {
-        imageCache.forEach(value => {
-            value.then(tmpFile => fs.unlink(tmpFile, () => { }));
+        imageCache.forEach((value) => {
+            value.then((tmpFile) => fs.unlink(tmpFile, () => {}));
         });
         imageCache.clear();
-    }
+    },
 };

@@ -14,6 +14,8 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.26.2
+    -   Update dependencies
 -   0.26.1
     -   Update vscode engine version to 1.44.0
 -   0.26.0

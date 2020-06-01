@@ -6,10 +6,12 @@ import {
     createConnection,
     Position,
     TextDocuments,
-    TextDocument,
-    CancellationToken
+    CancellationToken,
+    TextDocumentSyncKind,
 } from 'vscode-languageserver';
 import { GutterPreviewImageRequestType, ImageInfoResponse, ImageInfo, ImageInfoRequest } from '../common/protocol';
+
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import * as path from 'path';
 import * as url from 'url';
@@ -27,15 +29,15 @@ let connection: IConnection = createConnection(new IPCMessageReader(process), ne
 console.log = connection.console.log.bind(connection.console);
 console.error = connection.console.error.bind(connection.console);
 
-let documents: TextDocuments = new TextDocuments();
+let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 documents.listen(connection);
 
 connection.onInitialize(
     (): InitializeResult => {
         return {
             capabilities: {
-                textDocumentSync: documents.syncKind
-            }
+                textDocumentSync: TextDocumentSyncKind.Full,
+            },
         };
     }
 );
@@ -52,27 +54,27 @@ connection.onRequest(
                     });
                 });
                 return Promise.race([collectEntries(document, request, cancellationToken), cancellation])
-                    .then(values => values.filter(p => !!p))
-                    .then(entries => {
+                    .then((values) => values.filter((p) => !!p))
+                    .then((entries) => {
                         return {
-                            images: entries.filter(p => !!p)
+                            images: entries.filter((p) => !!p),
                         };
                     })
-                    .catch(e => {
+                    .catch((e) => {
                         console.error(e);
                         return {
-                            images: []
+                            images: [],
                         };
                     });
             } else {
                 return {
-                    images: []
+                    images: [],
                 };
             }
         } catch (e) {
             console.error(e);
             return {
-                images: []
+                images: [],
             };
         }
     }
@@ -89,7 +91,7 @@ async function collectEntries(
 ): Promise<ImageInfo[]> {
     let items = [];
     ImageCache.setCurrentColor(request.currentColor);
-    absoluteUrlMappers.forEach(absoluteUrlMapper =>
+    absoluteUrlMappers.forEach((absoluteUrlMapper) =>
         absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolder, request.paths)
     );
 
@@ -103,14 +105,14 @@ async function collectEntries(
         }
 
         recognizers
-            .map(recognizer => {
+            .map((recognizer) => {
                 if (cancellationToken.isCancellationRequested) return;
                 return recognizer.recognize(lineIndex, line);
             })
-            .filter(item => !!item)
-            .map(matches => {
+            .filter((item) => !!item)
+            .map((matches) => {
                 if (document.languageId == 'latex') {
-                    matches.forEach(match => {
+                    matches.forEach((match) => {
                         if (match.url.startsWith('{') && match.url.endsWith('}')) {
                             match.url = match.url.substring(1, match.url.length - 1);
                             match.start += 1;
@@ -120,25 +122,25 @@ async function collectEntries(
                 }
                 return matches;
             })
-            .forEach(urlMatches => {
+            .forEach((urlMatches) => {
                 if (cancellationToken.isCancellationRequested) return;
-                urlMatches.forEach(urlMatch => {
+                urlMatches.forEach((urlMatch) => {
                     if (cancellationToken.isCancellationRequested) return;
                     let absoluteUrls = absoluteUrlMappers
-                        .map(mapper => {
+                        .map((mapper) => {
                             try {
                                 return mapper.map(request.fileName, urlMatch.url);
-                            } catch (e) { }
+                            } catch (e) {}
                         })
-                        .filter(item => nonNullOrEmpty(item));
+                        .filter((item) => nonNullOrEmpty(item));
 
                     let absoluteUrlsSet = new Set(absoluteUrls);
 
                     items = items.concat(
-                        Array.from(absoluteUrlsSet.values()).map(absoluteImagePath => {
+                        Array.from(absoluteUrlsSet.values()).map((absoluteImagePath) => {
                             const result =
                                 convertToLocalImagePath(absoluteImagePath, urlMatch) || Promise.resolve(null);
-                            return result.catch(p => null);
+                            return result.catch((p) => null);
                         })
                     );
                 });
@@ -156,7 +158,7 @@ async function convertToLocalImagePath(absoluteImagePath: string, urlMatch: UrlM
             if (absoluteImageUrl && absoluteImageUrl.pathname) {
                 let absolutePath = path.parse(absoluteImageUrl.pathname);
                 isExtensionSupported = acceptedExtensions.some(
-                    ext => absolutePath && absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext)
+                    (ext) => absolutePath && absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext)
                 );
             }
         }
@@ -172,14 +174,14 @@ async function convertToLocalImagePath(absoluteImagePath: string, urlMatch: UrlM
                 return Promise.resolve({
                     originalImagePath: absoluteImagePath,
                     imagePath: absoluteImagePath,
-                    range
+                    range,
                 });
             } else {
-                return ImageCache.store(absoluteImagePath).then(imagePath => {
+                return ImageCache.store(absoluteImagePath).then((imagePath) => {
                     return {
                         originalImagePath: absoluteImagePath,
                         imagePath,
-                        range
+                        range,
                     };
                 });
             }
