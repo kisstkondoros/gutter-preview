@@ -89,7 +89,7 @@
     "@types/tmp": "^0.2.0",
     "@types/vscode": "^1.45.1",
     "husky": "^4.2.5",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
     "ts-loader": "^7.0.5",
