@@ -18,9 +18,11 @@ export const ImageCache = {
         }
     },
     delete: (key: string) => {
+        imageCache.get(key).then((tmpFile) => fs.unlink(tmpFile, () => {}));
         imageCache.delete(key);
     },
     set: (key: string, value: Thenable<string>) => {
+        imageCache.delete(key);
         imageCache.set(key, value);
     },
     get: (key: string) => {
