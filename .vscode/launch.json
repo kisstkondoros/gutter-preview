@@ -20,7 +20,8 @@
       "sourceMaps": true,
       "address": "localhost",
       "protocol": "inspector",
-      "outFiles": ["${workspaceRoot}/dist/**/*.js"]
+      "outFiles": ["${workspaceRoot}/dist/**/*.js"],
+      "sourceMapPathOverrides": { "webpack:///src/*": "${workspaceRoot}/src/*" }
     }
   ]
 }

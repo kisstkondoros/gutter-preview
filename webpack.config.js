@@ -7,23 +7,23 @@ const config = {
     target: 'node',
     entry: {
         extension: './src/extension.ts',
-        server: './src/server/server.ts'
+        server: './src/server/server.ts',
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js',
         libraryTarget: 'commonjs2',
-        devtoolModuleFilenameTemplate: '../[resource-path]'
+        devtoolModuleFilenameTemplate: '../[resource-path]',
     },
     devtool: 'source-map',
     externals: {
-        vscode: 'commonjs vscode'
+        vscode: 'commonjs vscode',
     },
     resolve: {
         extensions: ['.ts', '.js'],
         alias: {
-            deepmerge$: path.resolve(__dirname, 'node_modules/deepmerge/dist/umd.js')
-        }
+            deepmerge$: path.resolve(__dirname, 'node_modules/deepmerge/dist/umd.js'),
+        },
     },
     module: {
         rules: [
@@ -32,12 +32,17 @@ const config = {
                 exclude: /node_modules/,
                 use: [
                     {
-                        loader: 'ts-loader'
-                    }
-                ]
-            }
-        ]
-    }
+                        loader: 'ts-loader',
+                        options: {
+                            compilerOptions: {
+                                sourceMap: true,
+                            },
+                        },
+                    },
+                ],
+            },
+        ],
+    },
 };
 
 module.exports = config;
