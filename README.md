@@ -14,6 +14,11 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.27.1
+    -   Update changelog
+-   0.27.0
+    -   Update dependencies
+    -   Fix temp file related issues
 -   0.26.2
     -   Update dependencies
 -   0.26.1
