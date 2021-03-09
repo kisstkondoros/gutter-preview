@@ -5,7 +5,7 @@
   "author": "Tamas Kiss",
   "publisher": "kisstkondoros",
   "license": "MIT",
-  "version": "0.26.2",
+  "version": "0.27.0",
   "displayName": "Image preview",
   "icon": "images/logo.png",
   "engines": {
