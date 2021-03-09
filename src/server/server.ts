@@ -23,6 +23,7 @@ import { nonNullOrEmpty } from '../util/stringutil';
 
 import { ImageCache } from '../util/imagecache';
 import { UrlMatch } from '../recognizers/recognizer';
+import { URI } from 'vscode-uri';
 
 let connection: Connection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
@@ -154,9 +155,9 @@ async function convertToLocalImagePath(absoluteImagePath: string, urlMatch: UrlM
         let isExtensionSupported: boolean;
 
         if (!isDataUri) {
-            const absoluteImageUrl = url.parse(absoluteImagePath);
-            if (absoluteImageUrl && absoluteImageUrl.pathname) {
-                let absolutePath = path.parse(absoluteImageUrl.pathname);
+            const absoluteImageUrl = URI.parse(absoluteImagePath);
+            if (absoluteImageUrl && absoluteImageUrl.path) {
+                let absolutePath = path.parse(absoluteImageUrl.path);
                 isExtensionSupported = acceptedExtensions.some(
                     (ext) => absolutePath && absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext)
                 );

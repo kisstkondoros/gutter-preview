@@ -1,3 +1,4 @@
+import { URI } from 'vscode-uri'
 import * as tmp from 'tmp';
 import fetch from 'node-fetch';
 import * as path from 'path';
@@ -37,13 +38,13 @@ export const ImageCache = {
             return ImageCache.get(absoluteImagePath);
         } else {
             try {
-                const absoluteImageUrl = url.parse(absoluteImagePath);
+                const absoluteImageUrl = URI.parse(absoluteImagePath);
                 const tempFile = tmp.fileSync({
                     postfix: absoluteImageUrl.pathname ? path.parse(absoluteImageUrl.pathname).ext : 'png',
                 });
                 const filePath = tempFile.name;
                 const promise = new Promise<string>((resolve, reject) => {
-                    if (absoluteImageUrl.protocol && absoluteImageUrl.protocol.startsWith('http')) {
+                    if (absoluteImageUrl.scheme && absoluteImageUrl.scheme.startsWith('http')) {
                         fetch(new url.URL(absoluteImagePath).toString())
                             .then((resp) => {
                                 if (!resp.ok) {
