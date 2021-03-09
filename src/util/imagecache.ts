@@ -76,7 +76,7 @@ export const ImageCache = {
                         });
                     }
                 });
-                ImageCache.set(absoluteImagePath, promise);
+
                 const injectStyles = (path: string) => {
                     return new Promise<string>((res, rej) => {
                         if (path.endsWith('.svg') && currentColorForClojure && currentColorForClojure != '') {
@@ -98,7 +98,9 @@ export const ImageCache = {
                         }
                     });
                 };
-                return promise.then((p) => injectStyles(p));
+                const injected = promise.then((p) => injectStyles(p));
+                ImageCache.set(absoluteImagePath, injected);
+                return injected;
             } catch (error) {}
         }
     },
