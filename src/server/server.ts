@@ -34,7 +34,8 @@ let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 documents.listen(connection);
 
 connection.onInitialize(
-    (): InitializeResult => {
+    (parameters): InitializeResult => {
+        ImageCache.configure(parameters.initializationOptions.storagePath)
         return {
             capabilities: {
                 textDocumentSync: TextDocumentSyncKind.Full,

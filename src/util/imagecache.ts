@@ -11,7 +11,11 @@ tmp.setGracefulCleanup();
 
 let imageCache: Map<String, Thenable<string>> = new Map();
 let currentColor: string;
+let storagePath: string;
 export const ImageCache = {
+    configure: (clientStoragePath) => {
+        storagePath = clientStoragePath;
+    },
     setCurrentColor: (color: string) => {
         if (currentColor != color) {
             currentColor = color;
@@ -39,8 +43,12 @@ export const ImageCache = {
         } else {
             try {
                 const absoluteImageUrl = URI.parse(absoluteImagePath);
+                if (!fs.existsSync(storagePath)) {
+                    fs.mkdirSync(storagePath);
+                }
                 const tempFile = tmp.fileSync({
-                    postfix: absoluteImageUrl.pathname ? path.parse(absoluteImageUrl.pathname).ext : 'png',
+                    tmpdir: storagePath,
+                    postfix: absoluteImageUrl.path ? path.parse(absoluteImageUrl.path).ext : 'png',
                 });
                 const filePath = tempFile.name;
                 const promise = new Promise<string>((resolve, reject) => {
