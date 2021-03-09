@@ -2,13 +2,13 @@ import {
     InitializeResult,
     IPCMessageReader,
     IPCMessageWriter,
-    IConnection,
     createConnection,
     Position,
     TextDocuments,
     CancellationToken,
     TextDocumentSyncKind,
-} from 'vscode-languageserver';
+    Connection
+} from 'vscode-languageserver/node';
 import { GutterPreviewImageRequestType, ImageInfoResponse, ImageInfo, ImageInfoRequest } from '../common/protocol';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -24,7 +24,7 @@ import { nonNullOrEmpty } from '../util/stringutil';
 import { ImageCache } from '../util/imagecache';
 import { UrlMatch } from '../recognizers/recognizer';
 
-let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
+let connection: Connection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
 console.log = connection.console.log.bind(connection.console);
 console.error = connection.console.error.bind(connection.console);

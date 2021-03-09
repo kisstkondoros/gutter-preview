@@ -8,7 +8,7 @@ import {
     Message,
     LanguageClientOptions,
     LanguageClient,
-} from 'vscode-languageclient';
+} from 'vscode-languageclient/node';
 import {
     ExtensionContext,
     window,
@@ -123,7 +123,7 @@ export function activate(context: ExtensionContext) {
             paths = Object.assign(loadPathsFromTSConfig(workspaceFolder, path.dirname(document.uri.fsPath)), paths);
         }
 
-        const getImageInfo = (uri: Uri, visibleLines: number[]) => {
+        const getImageInfo = (uri: Uri, visibleLines: number[]):Promise<ImageInfoResponse> => {
             return client.onReady().then(() => {
                 return client.sendRequest(
                     GutterPreviewImageRequestType,

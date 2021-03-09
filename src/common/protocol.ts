@@ -1,3 +1,4 @@
+import { Uri } from 'vscode';
 import { RequestType, Range } from 'vscode-languageserver';
 
 export interface ImageInfo {
@@ -23,6 +24,5 @@ export interface ImageInfoRequest {
 export const GutterPreviewImageRequestType: RequestType<
     ImageInfoRequest,
     ImageInfoResponse,
-    any,
     any
 > = new RequestType('gutterpreview/gutterpreviewImages');

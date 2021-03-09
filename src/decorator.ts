@@ -6,7 +6,7 @@ import { imageSize } from 'image-size';
 import { findEditorsForDocument, clearEditorDecorations } from './util/editorutil';
 
 import { ImageInfoResponse, ImageInfo } from './common/protocol';
-import { LanguageClient } from 'vscode-languageclient';
+import { LanguageClient } from 'vscode-languageclient/node';
 import { getConfiguredProperty } from './util/configuration';
 
 interface Decoration {
