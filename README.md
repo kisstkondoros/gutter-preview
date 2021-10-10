@@ -13,7 +13,10 @@ Shows image preview in the gutter and on hover
 [Direct link to Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kisstkondoros.vscode-gutter-preview)
 
 ### Change Log
-
+-   0.28.0
+    -   Add file size to hover preview
+    -   Reorver lines in preview
+    -   Update changelog
 -   0.27.1
     -   Update changelog
 -   0.27.0

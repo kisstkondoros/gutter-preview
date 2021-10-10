@@ -98,6 +98,7 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
+    "filesize": "^8.0.3",
     "image-size": "^0.9.4",
     "slash": "^3.0.0",
     "tmp": "^0.2.1",
