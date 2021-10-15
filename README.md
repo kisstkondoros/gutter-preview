@@ -17,6 +17,7 @@ Shows image preview in the gutter and on hover
     -   Add file size to hover preview
     -   Reorver lines in preview
     -   Update changelog
+    -   Update dependencies
 -   0.27.1
     -   Update changelog
 -   0.27.0
