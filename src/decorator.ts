@@ -4,6 +4,7 @@ import slash from 'slash';
 import { imageSize } from 'image-size';
 
 import { findEditorsForDocument, clearEditorDecorations } from './util/editorutil';
+import { getFilesize, isLocalFile, isUrlEncodedFile } from './util/fileutil';
 
 import { ImageInfoResponse, ImageInfo } from './common/protocol';
 import { LanguageClient } from 'vscode-languageclient/node';
@@ -119,24 +120,19 @@ export function imageDecorator(
                 if (matchingDecoratorAndItem && matchingDecoratorAndItem.decoration) {
                     const item = matchingDecoratorAndItem.item;
 
-                    var fallback = (markedString: string) => {
-                        const contents = new vscode.MarkdownString(markedString);
-                        contents.isTrusted = true;
-                        return new vscode.Hover(contents, matchingDecoratorAndItem.decoration.range);
-                    };
-                    var imageWithSize = (markedString, result) => {
-                        markedString += `  \r\n${result.width}x${result.height}`;
-                        const contents = new vscode.MarkdownString(markedString);
-                        contents.isTrusted = true;
-                        return new vscode.Hover(contents, matchingDecoratorAndItem.decoration.range);
-                    };
-                    let markedString = (imagePath: string, withOpenFileCommand: boolean = true) => {
-                        if (imagePath.indexOf('://') == -1 && !imagePath.startsWith('data:image')) {
+                    let formatPreview = (imagePath: string, options?: {
+                            hasOpenFileCommand?: boolean,
+                            dimentions?: { height: number, width: number; },
+                            size?: string;
+                    }) => {
+                        const { hasOpenFileCommand = true, dimentions, size } = options || {};
+                        let result = '';
+
+                        if (isLocalFile(imagePath) && !isUrlEncodedFile(imagePath)) {
                             imagePath = vscode.Uri.file(imagePath).toString();
                         }
 
-                        let result = `![${imagePath}](${imagePath}|height=${maxHeight})`;
-                        if (withOpenFileCommand && item.originalImagePath.indexOf('://') == -1) {
+                        if (hasOpenFileCommand && isLocalFile(item.originalImagePath)) {
                             const uri = vscode.Uri.file(item.originalImagePath);
                             const args = [uri];
                             const openFileCommandUrl = vscode.Uri.parse(
@@ -149,23 +145,48 @@ export function imageDecorator(
                             result += `  \r\n`;
                             result += `  \r\n[Open Containing Folder](${browseFileCommandUrl} "Open Containing Folder")`;
                         }
-                        return result;
-                    };
-                    try {
-                        if (item.originalImagePath.startsWith('data:image')) {
-                            result = Promise.resolve(fallback(markedString(item.originalImagePath, false)));
-                        } else {
-                            const sizeOfPromise = util.promisify(imageSize)(item.imagePath);
-                            result = sizeOfPromise.then(
-                                (result) => imageWithSize(markedString(item.imagePath), result),
-                                () => fallback(markedString(item.imagePath))
-                            );
+
+                        if (dimentions?.height && dimentions?.width) {
+                            result += `  \r\n${dimentions.width}x${dimentions.height}`;
                         }
+
+                        if (size) {
+                            result += `  \r\n${size}`;
+                        }
+
+                        result += `![${imagePath}](${imagePath})`;
+
+                        const contents = new vscode.MarkdownString(result);
+                        contents.isTrusted = true;
+
+                        return new vscode.Hover(contents, matchingDecoratorAndItem.decoration.range);
+                    };
+
+                    try {
+                        if (isUrlEncodedFile(item.originalImagePath)) {
+                            result = Promise.resolve(
+                                formatPreview(
+                                    item.originalImagePath,
+                                    { hasOpenFileCommand: false }
+                                )
+                            );
+                        } else {
+                            const dimentionsOfPromise = util.promisify(imageSize)(item.imagePath);
+                            const sizeOfPromise = getFilesize(item.imagePath);
+
+                            result = Promise.all([dimentionsOfPromise, sizeOfPromise]).then(
+                                ([dimentions, size]) => formatPreview(
+                                    item.imagePath, 
+                                    { dimentions, size }
+                                ),
+                                () => formatPreview(item.imagePath))
+                            }
                     } catch (error) {
-                        result = Promise.resolve(fallback(markedString(item.imagePath)));
+                        result = Promise.resolve(formatPreview(item.imagePath));
                     }
                 }
             }
+
             return result;
         },
     };
