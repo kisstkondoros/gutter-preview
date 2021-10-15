@@ -154,7 +154,7 @@ export function imageDecorator(
                             result += `  \r\n${size}`;
                         }
 
-                        result += `![${imagePath}](${imagePath})`;
+                        result += `![${imagePath}](${imagePath}|height=${maxHeight})`;
 
                         const contents = new vscode.MarkdownString(result);
                         contents.isTrusted = true;
