@@ -16,5 +16,5 @@ export const relativeToOpenFileUrlMapper: AbsoluteUrlMapper = {
         }
         return absoluteImagePath;
     },
-    refreshConfig() {}
+    refreshConfig() {},
 };

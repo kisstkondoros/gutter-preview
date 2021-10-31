@@ -5,14 +5,14 @@ export function copyFile(source, target, cb) {
     var cbCalled = false;
 
     var rd = fs.createReadStream(source);
-    rd.on('error', function(err) {
+    rd.on('error', function (err) {
         done(err);
     });
     var wr = fs.createWriteStream(target);
-    wr.on('error', function(err) {
+    wr.on('error', function (err) {
         done(err);
     });
-    wr.on('close', function(ex) {
+    wr.on('close', function (ex) {
         done();
     });
     rd.pipe(wr);
@@ -27,7 +27,7 @@ export function copyFile(source, target, cb) {
 
 export function getFilesize(source: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        fs.stat(source,(err, info) => {
+        fs.stat(source, (err, info) => {
             if (err) {
                 return reject(err);
             }
@@ -37,7 +37,7 @@ export function getFilesize(source: string): Promise<string> {
     });
 }
 
-export function isLocalFile(source: string): boolean{
+export function isLocalFile(source: string): boolean {
     return source.indexOf('://') == -1;
 }
 

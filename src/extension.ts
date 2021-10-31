@@ -18,7 +18,7 @@ import {
     commands,
     Position,
     Uri,
-    Location
+    Location,
 } from 'vscode';
 import { ImageInfoResponse, GutterPreviewImageRequestType } from './common/protocol';
 import { imageDecorator } from './decorator';
@@ -36,13 +36,10 @@ const loadPathsFromTSConfig = (
     const paths: { [name: string]: string | string[] } = {};
     const configResult = loadConfig(currentFileFolder);
 
-    if (configResult.resultType == "success") {
+    if (configResult.resultType == 'success') {
         const tsConfigPaths = configResult.paths || {};
-        const baseUrl: string = path.relative(
-            workspaceFolder,
-            configResult.absoluteBaseUrl
-        );
-        Object.keys(tsConfigPaths).forEach(alias => {
+        const baseUrl: string = path.relative(workspaceFolder, configResult.absoluteBaseUrl);
+        Object.keys(tsConfigPaths).forEach((alias) => {
             let mapping = tsConfigPaths[alias];
             const lastIndexOfSlash = alias.lastIndexOf('/');
             let aliasWithoutWildcard = alias;
@@ -84,7 +81,7 @@ export function activate(context: ExtensionContext) {
 
     let serverOptions: ServerOptions = {
         run: { module: serverModule, transport: TransportKind.ipc },
-        debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
+        debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions },
     };
     var output = window.createOutputChannel('gutter-preview');
     let error: (error, message, count) => ErrorAction = (error: Error, message: Message, count: number) => {
@@ -101,11 +98,11 @@ export function activate(context: ExtensionContext) {
 
             closed: () => {
                 return undefined;
-            }
+            },
         },
         synchronize: {
-            configurationSection: 'gutterpreview'
-        }
+            configurationSection: 'gutterpreview',
+        },
     };
 
     let client = new LanguageClient('gutterpreview parser', serverOptions, clientOptions);
@@ -131,7 +128,7 @@ export function activate(context: ExtensionContext) {
             paths = Object.assign(loadPathsFromTSConfig(workspaceFolder, path.dirname(document.uri.fsPath)), paths);
         }
 
-        const getImageInfo = (uri: Uri, visibleLines: number[]):Promise<ImageInfoResponse> => {
+        const getImageInfo = (uri: Uri, visibleLines: number[]): Promise<ImageInfoResponse> => {
             return client.onReady().then(() => {
                 return client.sendRequest(
                     GutterPreviewImageRequestType,
@@ -142,7 +139,7 @@ export function activate(context: ExtensionContext) {
                         workspaceFolder: workspaceFolder,
                         currentColor: getConfiguredProperty(document, 'currentColorForSVG', ''),
                         additionalSourcefolder: getConfiguredProperty(document, 'sourceFolder', ''),
-                        paths: paths
+                        paths: paths,
                     },
                     token
                 );
@@ -174,24 +171,24 @@ export function activate(context: ExtensionContext) {
                         .executeCommand('vscode.executeDefinitionProvider', document.uri, position)
                         .then((definitions: Location[]) => {
                             if (token.isCancellationRequested) return Promise.reject();
-                            const pendingRequests = definitions.map(definition => {
+                            const pendingRequests = definitions.map((definition) => {
                                 if (definition && definition.range && definition.range.isSingleLine) {
                                     return workspace.openTextDocument(definition.uri).then(() => {
                                         if (token.isCancellationRequested) return Promise.reject();
                                         return getImageInfo(definition.uri, [definition.range.start.line]).then(
-                                            response => {
-                                                response.images.forEach(p => (p.range = range));
+                                            (response) => {
+                                                response.images.forEach((p) => (p.range = range));
                                                 return response;
                                             }
                                         );
                                     });
                                 }
                             });
-                            return Promise.all(pendingRequests.filter(r => !!r)).then(responses => {
+                            return Promise.all(pendingRequests.filter((r) => !!r)).then((responses) => {
                                 return {
                                     images: responses
-                                        .map(response => response.images)
-                                        .reduce((prev, curr) => prev.concat(...curr), [])
+                                        .map((response) => response.images)
+                                        .reduce((prev, curr) => prev.concat(...curr), []),
                                 } as ImageInfoResponse;
                             });
                         });
@@ -202,18 +199,20 @@ export function activate(context: ExtensionContext) {
 
         requests.push(getImageInfo(document.uri, visibleLines));
         return Promise.all(requests)
-            .then(responses => {
+            .then((responses) => {
                 return {
-                    images: responses.map(response => response.images).reduce((prev, curr) => prev.concat(...curr), [])
+                    images: responses
+                        .map((response) => response.images)
+                        .reduce((prev, curr) => prev.concat(...curr), []),
                 };
             })
-            .catch(e => {
+            .catch((e) => {
                 console.warn(
                     'Connection was not yet ready when requesting image previews or an unexpected error occured.'
                 );
                 console.warn(e);
                 return {
-                    images: []
+                    images: [],
                 };
             });
     };

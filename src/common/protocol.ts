@@ -21,8 +21,6 @@ export interface ImageInfoRequest {
     };
 }
 
-export const GutterPreviewImageRequestType: RequestType<
-    ImageInfoRequest,
-    ImageInfoResponse,
-    any
-> = new RequestType('gutterpreview/gutterpreviewImages');
+export const GutterPreviewImageRequestType: RequestType<ImageInfoRequest, ImageInfoResponse, any> = new RequestType(
+    'gutterpreview/gutterpreviewImages'
+);

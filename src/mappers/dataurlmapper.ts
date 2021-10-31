@@ -8,5 +8,5 @@ export const dataUrlMapper: AbsoluteUrlMapper = {
         }
         return absoluteImagePath;
     },
-    refreshConfig() { }
+    refreshConfig() {},
 };

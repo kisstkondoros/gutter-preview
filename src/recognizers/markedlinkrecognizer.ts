@@ -13,10 +13,10 @@ export const markedLinkRecognizer: ImagePathRecognizer = {
                     url: imagePath,
                     lineIndex,
                     start: matchIndex,
-                    end: matchIndex + imagePath.length
+                    end: matchIndex + imagePath.length,
                 });
             }
         }
         return result;
-    }
+    },
 };

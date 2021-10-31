@@ -1,4 +1,4 @@
-import { URI } from 'vscode-uri'
+import { URI } from 'vscode-uri';
 import * as tmp from 'tmp';
 import fetch from 'node-fetch';
 import * as path from 'path';

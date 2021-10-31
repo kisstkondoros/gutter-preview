@@ -48,7 +48,7 @@ export const localLinkRecognizer: ImagePathRecognizer = {
                     url: imagePath,
                     lineIndex,
                     start: match.index,
-                    end: match.index + imagePath.length
+                    end: match.index + imagePath.length,
                 });
             }
         }
@@ -59,10 +59,10 @@ export const localLinkRecognizer: ImagePathRecognizer = {
                     url: imagePath,
                     lineIndex,
                     start: match.index,
-                    end: match.index + imagePath.length
+                    end: match.index + imagePath.length,
                 });
             }
         }
         return result;
-    }
+    },
 };

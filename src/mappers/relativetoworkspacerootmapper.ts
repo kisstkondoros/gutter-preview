@@ -24,7 +24,7 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
                     if (!Array.isArray(aliases)) {
                         aliases = [aliases];
                     }
-                    aliases.forEach(alias => {
+                    aliases.forEach((alias) => {
                         const resolvedPath = path.join(alias, pathName);
                         pathsToTest.push(resolvedPath);
                     });
@@ -36,7 +36,7 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
                     if (!Array.isArray(aliases)) {
                         aliases = [aliases];
                     }
-                    aliases.forEach(alias => {
+                    aliases.forEach((alias) => {
                         segments[0] = alias;
                         const resolvedPath = segments.join('/');
                         pathsToTest.push(resolvedPath);

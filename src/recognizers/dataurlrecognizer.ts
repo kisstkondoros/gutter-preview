@@ -16,7 +16,7 @@ export const dataUrlRecognizer: ImagePathRecognizer = {
                     url: imagePath,
                     lineIndex,
                     start: match.index + urlPrefixLength,
-                    end: match.index + urlPrefixLength + imagePath.length
+                    end: match.index + urlPrefixLength + imagePath.length,
                 });
             }
         }
@@ -27,10 +27,10 @@ export const dataUrlRecognizer: ImagePathRecognizer = {
                     url: imagePath,
                     lineIndex,
                     start: match.index + urlPrefixLength,
-                    end: match.index + urlPrefixLength + imagePath.length
+                    end: match.index + urlPrefixLength + imagePath.length,
                 });
             }
         }
         return result;
-    }
+    },
 };

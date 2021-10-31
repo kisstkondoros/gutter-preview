@@ -18,5 +18,5 @@ export const simpleUrlMapper: AbsoluteUrlMapper = {
         }
         return absoluteImagePath;
     },
-    refreshConfig() {}
+    refreshConfig() {},
 };

@@ -5,7 +5,7 @@ export const siblingRecognizer: ImagePathRecognizer = {
     recognize: (lineIndex: number, line: string): UrlMatch[] => {
         const excludedPathCharactersClause = '[^\\0\\s!$`&*()\\[\\]+\'":;\\\\]';
         let pattern: RegExp = new RegExp(
-            `(${excludedPathCharactersClause}+[${acceptedExtensions.map(p => `(\\${p})`).join('|')}])`,
+            `(${excludedPathCharactersClause}+[${acceptedExtensions.map((p) => `(\\${p})`).join('|')}])`,
             'ig'
         );
         let match: RegExpExecArray;
@@ -17,10 +17,10 @@ export const siblingRecognizer: ImagePathRecognizer = {
                     url: imagePath,
                     lineIndex,
                     start: match.index,
-                    end: match.index + imagePath.length
+                    end: match.index + imagePath.length,
                 });
             }
         }
         return result;
-    }
+    },
 };

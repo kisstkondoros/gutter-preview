@@ -7,7 +7,7 @@ import {
     TextDocuments,
     CancellationToken,
     TextDocumentSyncKind,
-    Connection
+    Connection,
 } from 'vscode-languageserver/node';
 import { GutterPreviewImageRequestType, ImageInfoResponse, ImageInfo, ImageInfoRequest } from '../common/protocol';
 
@@ -35,7 +35,7 @@ documents.listen(connection);
 
 connection.onInitialize(
     (parameters): InitializeResult => {
-        ImageCache.configure(parameters.initializationOptions.storagePath)
+        ImageCache.configure(parameters.initializationOptions.storagePath);
         return {
             capabilities: {
                 textDocumentSync: TextDocumentSyncKind.Full,

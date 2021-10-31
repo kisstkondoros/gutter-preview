@@ -8,5 +8,5 @@ export const absoluteUrlMappers: AbsoluteUrlMapper[] = [
     dataUrlMapper,
     simpleUrlMapper,
     relativeToOpenFileUrlMapper,
-    relativeToWorkspaceRootFileUrlMapper
+    relativeToWorkspaceRootFileUrlMapper,
 ];

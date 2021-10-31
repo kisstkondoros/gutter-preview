@@ -120,11 +120,14 @@ export function imageDecorator(
                 if (matchingDecoratorAndItem && matchingDecoratorAndItem.decoration) {
                     const item = matchingDecoratorAndItem.item;
 
-                    let formatPreview = (imagePath: string, options?: {
-                            hasOpenFileCommand?: boolean,
-                            dimentions?: { height: number, width: number; },
+                    let formatPreview = (
+                        imagePath: string,
+                        options?: {
+                            hasOpenFileCommand?: boolean;
+                            dimentions?: { height: number; width: number };
                             size?: string;
-                    }) => {
+                        }
+                    ) => {
                         const { hasOpenFileCommand = true, dimentions, size } = options || {};
                         let result = '';
 
@@ -168,22 +171,17 @@ export function imageDecorator(
                     try {
                         if (isUrlEncodedFile(item.originalImagePath)) {
                             result = Promise.resolve(
-                                formatPreview(
-                                    item.originalImagePath,
-                                    { hasOpenFileCommand: false }
-                                )
+                                formatPreview(item.originalImagePath, { hasOpenFileCommand: false })
                             );
                         } else {
                             const dimentionsOfPromise = util.promisify(imageSize)(item.imagePath);
                             const sizeOfPromise = getFilesize(item.imagePath);
 
                             result = Promise.all([dimentionsOfPromise, sizeOfPromise]).then(
-                                ([dimentions, size]) => formatPreview(
-                                    item.imagePath, 
-                                    { dimentions, size }
-                                ),
-                                () => formatPreview(item.imagePath))
-                            }
+                                ([dimentions, size]) => formatPreview(item.imagePath, { dimentions, size }),
+                                () => formatPreview(item.imagePath)
+                            );
+                        }
                     } catch (error) {
                         result = Promise.resolve(formatPreview(item.imagePath));
                     }
