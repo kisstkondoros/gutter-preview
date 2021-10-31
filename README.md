@@ -14,6 +14,10 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.29.0
+    -   Add new configuration property 'gutterpreview.imagePreviewMaxWidth'
+        -   By definining it to any value > 0, it will be used to set the width of the image.
+            Note that the image might overflow the hover preview.
 -   0.28.1
     -   Fixed extension initialization without a workspace
 -   0.28.0
