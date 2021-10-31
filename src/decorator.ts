@@ -124,11 +124,11 @@ export function imageDecorator(
                         imagePath: string,
                         options?: {
                             hasOpenFileCommand?: boolean;
-                            dimentions?: { height: number; width: number };
+                            dimensions?: { height: number; width: number };
                             size?: string;
                         }
                     ) => {
-                        const { hasOpenFileCommand = true, dimentions, size } = options || {};
+                        const { hasOpenFileCommand = true, dimensions: dimensions, size } = options || {};
                         let result = '';
 
                         if (isLocalFile(imagePath) && !isUrlEncodedFile(imagePath)) {
@@ -149,8 +149,8 @@ export function imageDecorator(
                             result += `  \r\n[Open Containing Folder](${browseFileCommandUrl} "Open Containing Folder")`;
                         }
 
-                        if (dimentions?.height && dimentions?.width) {
-                            result += `  \r\n${dimentions.width}x${dimentions.height}`;
+                        if (dimensions?.height && dimensions?.width) {
+                            result += `  \r\n${dimensions.width}x${dimensions.height}`;
                         }
 
                         if (size) {
@@ -178,7 +178,7 @@ export function imageDecorator(
                             const sizeOfPromise = getFilesize(item.imagePath);
 
                             result = Promise.all([dimentionsOfPromise, sizeOfPromise]).then(
-                                ([dimentions, size]) => formatPreview(item.imagePath, { dimentions, size }),
+                                ([dimentions, size]) => formatPreview(item.imagePath, { dimensions: dimentions, size }),
                                 () => formatPreview(item.imagePath)
                             );
                         }
