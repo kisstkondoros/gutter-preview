@@ -43,6 +43,12 @@
           "description": "The maximum height of the image preview",
           "type": "number"
         },
+        "gutterpreview.imagePreviewMaxWidth": {
+          "default": "-1",
+          "scope": "resource",
+          "description": "The maximum width of the image preview, if configured to > 0, it is used instead of the max height setting",
+          "type": "number"
+        },
         "gutterpreview.showImagePreviewOnGutter": {
           "default": true,
           "scope": "resource",

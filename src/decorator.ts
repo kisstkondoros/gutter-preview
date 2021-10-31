@@ -100,10 +100,8 @@ export function imageDecorator(
 
     let hoverProvider = {
         provideHover(document: vscode.TextDocument, position: vscode.Position): Thenable<vscode.Hover> {
-            let maxHeight = getConfiguredProperty(document, 'imagePreviewMaxHeight', 100);
-            if (maxHeight < 0) {
-                maxHeight = 100;
-            }
+            let maxHeight = getConfiguredProperty(document, 'imagePreviewMaxHeight', -1);
+            let maxWidth = getConfiguredProperty(document, 'imagePreviewMaxWidth', -1);
             let result: Thenable<vscode.Hover> = undefined;
 
             if (major > 1 || (major == 1 && minor > 7)) {
@@ -128,7 +126,7 @@ export function imageDecorator(
                             size?: string;
                         }
                     ) => {
-                        const { hasOpenFileCommand = true, dimensions: dimensions, size } = options || {};
+                        const { hasOpenFileCommand = true, dimensions, size } = options || {};
                         let result = '';
 
                         if (isLocalFile(imagePath) && !isUrlEncodedFile(imagePath)) {
@@ -160,7 +158,14 @@ export function imageDecorator(
                         if (result.length > 0) {
                             result += `\r\n\r\n`;
                         }
-                        result += `![${imagePath}](${imagePath}|height=${maxHeight})`;
+
+                        let maxSizeConfig = '';
+                        if (maxWidth > 0) {
+                            maxSizeConfig = `|width=${maxWidth}`;
+                        } else if (maxHeight > 0) {
+                            maxSizeConfig = `|height=${maxHeight}`;
+                        }
+                        result += `![${imagePath}](${imagePath}${maxSizeConfig})`;
 
                         const contents = new vscode.MarkdownString(result);
                         contents.isTrusted = true;
