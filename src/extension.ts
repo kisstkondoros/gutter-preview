@@ -89,7 +89,7 @@ export function activate(context: ExtensionContext) {
     let clientOptions: LanguageClientOptions = {
         documentSelector: ['*'],
         initializationOptions: {
-            storagePath: context.storageUri.fsPath,
+            storagePath: context.storageUri?.fsPath,
         },
         errorHandler: {
             error: error,
