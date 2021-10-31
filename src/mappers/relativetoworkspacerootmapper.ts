@@ -48,8 +48,13 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
                     let testImagePath = path.join(rootPath, testPath);
                     if (ImageCache.has(testImagePath) || fs.existsSync(testImagePath)) {
                         absoluteImagePath = testImagePath;
-                    } else {
-                        let testImagePath = path.join(rootPath, this.additionalSourceFolder, testPath);
+                    } else if (this.additionalSourceFolder) {
+                        let testImagePath;
+                        if (path.isAbsolute(this.additionalSourceFolder)) {
+                            testImagePath = path.join(this.additionalSourceFolder, testPath);
+                        } else {
+                            testImagePath = path.join(rootPath, this.additionalSourceFolder, testPath);
+                        }
                         if (ImageCache.has(testImagePath) || fs.existsSync(testImagePath)) {
                             absoluteImagePath = testImagePath;
                         }
