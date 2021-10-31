@@ -73,6 +73,11 @@ const loadPathsFromTSConfig = (
 };
 
 export function activate(context: ExtensionContext) {
+    const storageUri = context.storageUri || context.globalStorageUri;
+    if (!storageUri || !storageUri.fsPath) {
+        throw new Error('The extension "vscode-gutter-preview" can not work without access to the storage!');
+    }
+
     let serverModule = context.asAbsolutePath(path.join('dist', 'server.js'));
 
     let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
@@ -89,7 +94,7 @@ export function activate(context: ExtensionContext) {
     let clientOptions: LanguageClientOptions = {
         documentSelector: ['*'],
         initializationOptions: {
-            storagePath: context.storageUri?.fsPath,
+            storagePath: storageUri.fsPath,
         },
         errorHandler: {
             error: error,
