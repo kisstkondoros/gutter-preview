@@ -104,7 +104,7 @@
   },
   "dependencies": {
     "filesize": "^8.0.3",
-    "image-size": "^0.9.4",
+    "image-size": "^1.0.1",
     "node-fetch": "^2.6.7",
     "slash": "^3.0.0",
     "tmp": "^0.2.1",
