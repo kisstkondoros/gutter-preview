@@ -33,10 +33,17 @@ export const dataUrlRecognizer: ImagePathRecognizer = {
     recognize: (lineIndex: number, line: string): UrlMatch[] => {
         const urlPrefixLength = "url('".length;
         let results: UrlMatch[] = [];
+
         results.push(...collectMatchesForPattern(/url\(\'(data:image.*)\'\)/gim, lineIndex, line));
         results.push(...collectMatchesForPattern(/url\(\"(data:image.*)\"\)/gim, lineIndex, line));
 
         results = results.map((p) => ({ ...p, start: p.start + urlPrefixLength, end: p.end + urlPrefixLength }));
+
+        if (results.length == 0) {
+            results.push(...collectMatchesForPattern(/\'(data:image[^']*)\'/gim, lineIndex, line));
+            results.push(...collectMatchesForPattern(/\"(data:image[^"]*)\"/gim, lineIndex, line));
+            results.push(...collectMatchesForPattern(/\`(data:image[^`]*)\`/gim, lineIndex, line));
+        }
 
         return results;
     },
