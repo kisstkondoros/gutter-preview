@@ -14,6 +14,11 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.30.0
+    -   Update changelog
+    -   Update dependencies
+    -   Fix reference lookup based resolution
+    -   Resolve Data URIs within quoted strings as well
 -   0.29.0
     -   Add new configuration property 'gutterpreview.imagePreviewMaxWidth'
         -   By definining it to any value > 0, it will be used to set the width of the image.
