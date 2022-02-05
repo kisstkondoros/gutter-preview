@@ -19,6 +19,7 @@ import {
     Position,
     Uri,
     Location,
+    LocationLink,
 } from 'vscode';
 import { ImageInfoResponse, GutterPreviewImageRequestType } from './common/protocol';
 import { imageDecorator } from './decorator';
@@ -169,19 +170,22 @@ export function activate(context: ExtensionContext) {
 
                     const pendingDefinitionRequest = commands
                         .executeCommand('vscode.executeDefinitionProvider', document.uri, position)
-                        .then((definitions: Location[]) => {
+                        .then((definitions: (Location | LocationLink)[]) => {
                             if (token.isCancellationRequested) return Promise.reject();
                             const pendingRequests = definitions.map((definition) => {
-                                if (definition && definition.range && definition.range.isSingleLine) {
-                                    return workspace.openTextDocument(definition.uri).then(() => {
-                                        if (token.isCancellationRequested) return Promise.reject();
-                                        return getImageInfo(definition.uri, [definition.range.start.line]).then(
-                                            (response) => {
+                                if (definition) {
+                                    const uri = (definition as Location).uri || (definition as LocationLink).targetUri;
+                                    const definitionRange =
+                                        (definition as Location).range || (definition as LocationLink).targetRange;
+                                    if (definitionRange && definitionRange.isSingleLine) {
+                                        return workspace.openTextDocument(uri).then(() => {
+                                            if (token.isCancellationRequested) return Promise.reject();
+                                            return getImageInfo(uri, [definitionRange.start.line]).then((response) => {
                                                 response.images.forEach((p) => (p.range = range));
                                                 return response;
-                                            }
-                                        );
-                                    });
+                                            });
+                                        });
+                                    }
                                 }
                             });
                             return Promise.all(pendingRequests.filter((r) => !!r)).then((responses) => {
