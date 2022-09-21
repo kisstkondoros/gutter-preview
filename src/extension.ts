@@ -59,7 +59,7 @@ const loadPathsFromTSConfig = (
                     if (element.endsWith('*')) {
                         element = element.substring(0, element.length - 1);
                     }
-                    resolvedMapping.push(path.join(baseUrl, element));
+                    resolvedMapping.push(path.join(baseUrl, element).replace(/\\/g, '/'));
                 });
                 paths[aliasWithoutWildcard] = resolvedMapping;
             }
