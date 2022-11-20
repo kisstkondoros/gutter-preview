@@ -1,14 +1,14 @@
 import * as util from 'util';
 import * as vscode from 'vscode';
-import slash from 'slash';
-import { imageSize } from 'image-size';
 
-import { findEditorsForDocument, clearEditorDecorations } from './util/editorutil';
+import { ImageInfo, ImageInfoResponse } from './common/protocol';
+import { clearEditorDecorations, findEditorsForDocument } from './util/editorutil';
 import { getFilesize, isLocalFile, isUrlEncodedFile } from './util/fileutil';
 
-import { ImageInfoResponse, ImageInfo } from './common/protocol';
 import { LanguageClient } from 'vscode-languageclient/node';
 import { getConfiguredProperty } from './util/configuration';
+import { imageSize } from 'image-size';
+import slash from 'slash';
 
 interface Decoration {
     textEditorDecorationType: vscode.TextEditorDecorationType;

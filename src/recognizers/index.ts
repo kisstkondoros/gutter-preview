@@ -1,9 +1,9 @@
 import { ImagePathRecognizer } from './recognizer';
+import { dataUrlRecognizer } from './dataurlrecognizer';
 import { linkRecognizer } from './linkrecognizer';
 import { localLinkRecognizer } from './locallinkrecognizer';
-import { dataUrlRecognizer } from './dataurlrecognizer';
-import { siblingRecognizer } from './siblingrecognizer';
 import { markedLinkRecognizer } from './markedlinkrecognizer';
+import { siblingRecognizer } from './siblingrecognizer';
 
 export const recognizers: ImagePathRecognizer[] = [
     markedLinkRecognizer,

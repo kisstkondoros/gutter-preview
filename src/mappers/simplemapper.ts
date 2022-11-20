@@ -1,11 +1,11 @@
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
 
 import { AbsoluteUrlMapper } from './mapper';
 import { ImageCache } from '../util/imagecache';
 
 export const simpleUrlMapper: AbsoluteUrlMapper = {
-    map(fileName: string, imagePath: string) {
+    map(imagePath: string) {
         let absoluteImagePath: string;
         if (imagePath.indexOf('http') == 0) {
             absoluteImagePath = imagePath;

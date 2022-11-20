@@ -1,4 +1,4 @@
-import { TextDocument, window, TextEditorDecorationType, TextEditor } from 'vscode';
+import { TextDocument, TextEditor, TextEditorDecorationType, window } from 'vscode';
 
 export function findEditorsForDocument(document: TextDocument) {
     return window.visibleTextEditors.filter((p) => p.document.uri === document.uri);

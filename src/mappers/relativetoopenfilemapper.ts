@@ -1,5 +1,5 @@
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
 
 import { AbsoluteUrlMapper } from './mapper';
 import { ImageCache } from '../util/imagecache';

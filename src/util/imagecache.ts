@@ -1,10 +1,11 @@
-import { URI } from 'vscode-uri';
-import * as tmp from 'tmp';
-import fetch from 'node-fetch';
-import * as path from 'path';
-import * as url from 'url';
 import * as fs from 'fs';
+import * as path from 'path';
+import * as tmp from 'tmp';
+import * as url from 'url';
+
+import { URI } from 'vscode-uri';
 import { copyFile } from './fileutil';
+import fetch from 'node-fetch';
 import { promisify } from 'util';
 
 tmp.setGracefulCleanup();

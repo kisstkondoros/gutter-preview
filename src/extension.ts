@@ -1,29 +1,30 @@
 import * as path from 'path';
-import { loadConfig } from 'tsconfig-paths/lib/config-loader';
 
 import {
-    ServerOptions,
-    TransportKind,
-    ErrorAction,
-    Message,
-    LanguageClientOptions,
-    LanguageClient,
-} from 'vscode-languageclient/node';
-import {
-    ExtensionContext,
-    window,
-    workspace,
-    TextDocument,
     CancellationToken,
-    commands,
-    Position,
-    Uri,
+    ExtensionContext,
     Location,
     LocationLink,
+    Position,
+    TextDocument,
+    Uri,
+    commands,
+    window,
+    workspace,
 } from 'vscode';
-import { ImageInfoResponse, GutterPreviewImageRequestType } from './common/protocol';
-import { imageDecorator } from './decorator';
+import {
+    ErrorAction,
+    LanguageClient,
+    LanguageClientOptions,
+    Message,
+    ServerOptions,
+    TransportKind,
+} from 'vscode-languageclient/node';
+import { GutterPreviewImageRequestType, ImageInfoResponse } from './common/protocol';
+
 import { getConfiguredProperty } from './util/configuration';
+import { imageDecorator } from './decorator';
+import { loadConfig } from 'tsconfig-paths/lib/config-loader';
 
 const pathCache = {};
 

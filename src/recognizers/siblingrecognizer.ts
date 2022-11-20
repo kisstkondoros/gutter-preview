@@ -1,4 +1,5 @@
 import { ImagePathRecognizer, UrlMatch } from './recognizer';
+
 import { acceptedExtensions } from '../util/acceptedExtensions';
 
 export const siblingRecognizer: ImagePathRecognizer = {
