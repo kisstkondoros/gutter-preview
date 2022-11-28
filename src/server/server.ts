@@ -1,29 +1,27 @@
-import {
-    InitializeResult,
-    IPCMessageReader,
-    IPCMessageWriter,
-    createConnection,
-    Position,
-    TextDocuments,
-    CancellationToken,
-    TextDocumentSyncKind,
-    Connection,
-} from 'vscode-languageserver/node';
-import { GutterPreviewImageRequestType, ImageInfoResponse, ImageInfo, ImageInfoRequest } from '../common/protocol';
-
-import { TextDocument } from 'vscode-languageserver-textdocument';
-
 import * as path from 'path';
 import * as url from 'url';
 
-import { acceptedExtensions } from '../util/acceptedExtensions';
-import { absoluteUrlMappers } from '../mappers';
-import { recognizers } from '../recognizers';
-import { nonNullOrEmpty } from '../util/stringutil';
+import {
+    CancellationToken,
+    Connection,
+    IPCMessageReader,
+    IPCMessageWriter,
+    InitializeResult,
+    Position,
+    TextDocumentSyncKind,
+    TextDocuments,
+    createConnection,
+} from 'vscode-languageserver/node';
+import { GutterPreviewImageRequestType, ImageInfo, ImageInfoRequest, ImageInfoResponse } from '../common/protocol';
 
 import { ImageCache } from '../util/imagecache';
-import { UrlMatch } from '../recognizers/recognizer';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
+import { UrlMatch } from '../recognizers/recognizer';
+import { absoluteUrlMappers } from '../mappers';
+import { acceptedExtensions } from '../util/acceptedExtensions';
+import { nonNullOrEmpty } from '../util/stringutil';
+import { recognizers } from '../recognizers';
 
 let connection: Connection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 

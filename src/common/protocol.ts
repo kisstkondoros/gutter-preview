@@ -1,5 +1,4 @@
-import { Uri } from 'vscode';
-import { RequestType, Range } from 'vscode-languageserver';
+import { Range, RequestType } from 'vscode-languageserver';
 
 export interface ImageInfo {
     originalImagePath: string;

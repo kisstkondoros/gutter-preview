@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+
 import fileSize from 'filesize';
 
 export function copyFile(source, target, cb) {
