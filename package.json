@@ -98,7 +98,7 @@
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
     "ts-loader": "^8.0.17",
-    "tsconfig-paths": "^3.9.0",
+    "tsconfig-paths": "^3.10.1",
     "webpack": "^5.58.2",
     "webpack-cli": "^4.9.0"
   },
