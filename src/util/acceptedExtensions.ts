@@ -1,1 +1,1 @@
-export const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp', '.gif', '.ico', '.webp'];
+export const acceptedExtensions = ['.svg', '.png', '.jpeg', '.jpg', '.bmp', '.gif', '.ico', '.webp', '.avif'];
