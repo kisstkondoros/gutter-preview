@@ -48,7 +48,7 @@ export const ImageCache = {
                 }
                 const tempFile = tmp.fileSync({
                     tmpdir: storagePath,
-                    postfix: absoluteImageUrl.path ? path.parse(absoluteImageUrl.path).ext : 'png',
+                    postfix: absoluteImageUrl.path ? path.parse(absoluteImageUrl.path).ext : '.png',
                 });
                 const filePath = tempFile.name;
                 const promise = new Promise<string>((resolve, reject) => {
