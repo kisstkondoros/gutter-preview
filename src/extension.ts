@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { loadConfig } from 'tsconfig-paths/lib/config-loader';
 
 import {
@@ -220,5 +221,12 @@ export function activate(context: ExtensionContext) {
                 };
             });
     };
+
+    vscode.workspace.onDidChangeConfiguration((event) => {
+        if (event.affectsConfiguration('gutterpreview.urlDetectionPatterns')) {
+            imageDecorator(symbolUpdater, context, client);
+        }
+    });
+
     imageDecorator(symbolUpdater, context, client);
 }

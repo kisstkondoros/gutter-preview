@@ -1,3 +1,4 @@
+import RegexParser from 'regex-parser';
 import {
     InitializeResult,
     IPCMessageReader,
@@ -19,7 +20,7 @@ import * as url from 'url';
 import { acceptedExtensions } from '../util/acceptedExtensions';
 import { absoluteUrlMappers } from '../mappers';
 import { recognizers } from '../recognizers';
-import { nonNullOrEmpty } from '../util/stringutil';
+import { nonNullOrEmpty, nonHttpOnly } from '../util/stringutil';
 
 import { ImageCache } from '../util/imagecache';
 import { UrlMatch } from '../recognizers/recognizer';
@@ -97,6 +98,19 @@ async function collectEntries(
         absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolder, request.paths)
     );
 
+    const configuration = await connection.workspace.getConfiguration({
+        scopeUri: document.uri,
+        section: 'gutterpreview',
+    });
+
+    const urlDetectionPatterns = configuration.urlDetectionPatterns
+        .map((pattern: string) => {
+            try {
+                return RegexParser(pattern);
+            } catch {} // Illegal regular expression strings are ignored.
+        })
+        .filter((p: RegExp | undefined) => !!p);
+
     const lines = document.getText().split(/\r\n|\r|\n/);
     for (const lineIndex of request.visibleLines) {
         var line = lines[lineIndex];
@@ -134,14 +148,15 @@ async function collectEntries(
                                 return mapper.map(request.fileName, urlMatch.url);
                             } catch (e) {}
                         })
-                        .filter((item) => nonNullOrEmpty(item));
+                        .filter((item) => nonNullOrEmpty(item) && nonHttpOnly(item));
 
                     let absoluteUrlsSet = new Set(absoluteUrls);
 
                     items = items.concat(
                         Array.from(absoluteUrlsSet.values()).map((absoluteImagePath) => {
                             const result =
-                                convertToLocalImagePath(absoluteImagePath, urlMatch) || Promise.resolve(null);
+                                convertToLocalImagePath(absoluteImagePath, urlMatch, urlDetectionPatterns) ||
+                                Promise.resolve(null);
                             return result.catch((p) => null);
                         })
                     );
@@ -150,10 +165,15 @@ async function collectEntries(
     }
     return await Promise.all(items);
 }
-async function convertToLocalImagePath(absoluteImagePath: string, urlMatch: UrlMatch): Promise<ImageInfo> {
+async function convertToLocalImagePath(
+    absoluteImagePath: string,
+    urlMatch: UrlMatch,
+    urlDetectionPatterns: RegExp[] = []
+): Promise<ImageInfo> {
     if (absoluteImagePath) {
         let isDataUri = absoluteImagePath.indexOf('data:image') == 0;
         let isExtensionSupported: boolean;
+        let isPatternSupported: boolean;
 
         if (!isDataUri) {
             const absoluteImageUrl = URI.parse(absoluteImagePath);
@@ -162,6 +182,9 @@ async function convertToLocalImagePath(absoluteImagePath: string, urlMatch: UrlM
                 isExtensionSupported = acceptedExtensions.some(
                     (ext) => absolutePath && absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext)
                 );
+                if (!isExtensionSupported && urlDetectionPatterns.length) {
+                    isPatternSupported = urlDetectionPatterns.some((regex) => regex.test(absoluteImagePath));
+                }
             }
         }
 
@@ -171,7 +194,7 @@ async function convertToLocalImagePath(absoluteImagePath: string, urlMatch: UrlM
 
         absoluteImagePath = absoluteImagePath.replace(/\|(width=\d*)?(height=\d*)?/gm, '');
 
-        if (isDataUri || isExtensionSupported) {
+        if (isDataUri || isExtensionSupported || isPatternSupported) {
             if (isDataUri) {
                 return Promise.resolve({
                     originalImagePath: absoluteImagePath,
