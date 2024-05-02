@@ -1,6 +1,9 @@
 import { TextDocument, window, TextEditorDecorationType, TextEditor } from 'vscode';
 
 export function findEditorsForDocument(document: TextDocument) {
+    if (document.uri != null && document.uri.scheme == 'output') {
+        return [];
+    }
     return window.visibleTextEditors.filter((p) => p.document.uri === document.uri);
 }
 
