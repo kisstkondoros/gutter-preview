@@ -15,7 +15,6 @@ import { GutterPreviewImageRequestType, ImageInfoResponse, ImageInfo, ImageInfoR
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import * as path from 'path';
-import * as url from 'url';
 
 import { acceptedExtensions } from '../util/acceptedExtensions';
 import { absoluteUrlMappers } from '../mappers';

@@ -1,4 +1,3 @@
-import { Uri } from 'vscode';
 import { RequestType, Range } from 'vscode-languageserver';
 
 export interface ImageInfo {

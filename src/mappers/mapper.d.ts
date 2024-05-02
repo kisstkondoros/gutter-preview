@@ -1,6 +1,4 @@
-import { TextDocument } from 'vscode-languageserver';
-
-interface AbsoluteUrlMapper {
+export interface AbsoluteUrlMapper {
     map(fileName: string, imagePath: string): string;
     refreshConfig(workspaceFolder: string, sourcefolder: string, paths: { [alias: string]: string | string[] });
 }
