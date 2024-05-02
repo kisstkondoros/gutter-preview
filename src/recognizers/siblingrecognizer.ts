@@ -6,7 +6,7 @@ export const siblingRecognizer: ImagePathRecognizer = {
         const excludedPathCharactersClause = '[^\\0\\s!$`&*()\\[\\]+\'":;\\\\]';
         let pattern: RegExp = new RegExp(
             `(${excludedPathCharactersClause}+[${acceptedExtensions.map((p) => `(\\${p})`).join('|')}])`,
-            'ig'
+            'ig',
         );
         let match: RegExpExecArray;
         const result = [];

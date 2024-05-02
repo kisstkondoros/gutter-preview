@@ -34,16 +34,14 @@ console.error = connection.console.error.bind(connection.console);
 let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 documents.listen(connection);
 
-connection.onInitialize(
-    (parameters): InitializeResult => {
-        ImageCache.configure(parameters.initializationOptions.storagePath);
-        return {
-            capabilities: {
-                textDocumentSync: TextDocumentSyncKind.Full,
-            },
-        };
-    }
-);
+connection.onInitialize((parameters): InitializeResult => {
+    ImageCache.configure(parameters.initializationOptions.storagePath);
+    return {
+        capabilities: {
+            textDocumentSync: TextDocumentSyncKind.Full,
+        },
+    };
+});
 
 connection.onRequest(
     GutterPreviewImageRequestType,
@@ -80,7 +78,7 @@ connection.onRequest(
                 images: [],
             };
         }
-    }
+    },
 );
 connection.onShutdown(() => {
     ImageCache.cleanup();
@@ -90,12 +88,12 @@ connection.listen();
 async function collectEntries(
     document: TextDocument,
     request: ImageInfoRequest,
-    cancellationToken: CancellationToken
+    cancellationToken: CancellationToken,
 ): Promise<ImageInfo[]> {
     let items = [];
     ImageCache.setCurrentColor(request.currentColor);
     absoluteUrlMappers.forEach((absoluteUrlMapper) =>
-        absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolder, request.paths)
+        absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolder, request.paths),
     );
 
     const configuration = await connection.workspace.getConfiguration({
@@ -158,7 +156,7 @@ async function collectEntries(
                                 convertToLocalImagePath(absoluteImagePath, urlMatch, urlDetectionPatterns) ||
                                 Promise.resolve(null);
                             return result.catch((p) => null);
-                        })
+                        }),
                     );
                 });
             });
@@ -168,7 +166,7 @@ async function collectEntries(
 async function convertToLocalImagePath(
     absoluteImagePath: string,
     urlMatch: UrlMatch,
-    urlDetectionPatterns: RegExp[] = []
+    urlDetectionPatterns: RegExp[] = [],
 ): Promise<ImageInfo> {
     if (absoluteImagePath) {
         let isDataUri = absoluteImagePath.indexOf('data:image') == 0;
@@ -180,7 +178,7 @@ async function convertToLocalImagePath(
             if (absoluteImageUrl && absoluteImageUrl.path) {
                 let absolutePath = path.parse(absoluteImageUrl.path);
                 isExtensionSupported = acceptedExtensions.some(
-                    (ext) => absolutePath && absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext)
+                    (ext) => absolutePath && absolutePath.ext && absolutePath.ext.toLowerCase().startsWith(ext),
                 );
                 if (!isExtensionSupported && urlDetectionPatterns.length) {
                     isPatternSupported = urlDetectionPatterns.some((regex) => regex.test(absoluteImagePath));

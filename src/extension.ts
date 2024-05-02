@@ -28,7 +28,7 @@ const pathCache = {};
 
 const loadPathsFromTSConfig = (
     workspaceFolder: string,
-    currentFileFolder: string
+    currentFileFolder: string,
 ): { [name: string]: string | string[] } => {
     if (pathCache[currentFileFolder]) {
         return pathCache[currentFileFolder];
@@ -114,7 +114,7 @@ export function activate(context: ExtensionContext) {
     let symbolUpdater = (
         document: TextDocument,
         visibleLines: number[],
-        token: CancellationToken
+        token: CancellationToken,
     ): Promise<ImageInfoResponse> => {
         let paths = getConfiguredProperty(document, 'paths', {});
 
@@ -142,7 +142,7 @@ export function activate(context: ExtensionContext) {
                         additionalSourcefolder: getConfiguredProperty(document, 'sourceFolder', ''),
                         paths: paths,
                     },
-                    token
+                    token,
                 );
             });
         };
@@ -163,7 +163,7 @@ export function activate(context: ExtensionContext) {
                 while ((matches = propertyAccessRegex.exec(line)) != null) {
                     const position = new Position(
                         lineIndex,
-                        matches.index + 1 /* DOT or $ sign */ + 1 /* to be inside the word */
+                        matches.index + 1 /* DOT or $ sign */ + 1 /* to be inside the word */,
                     );
                     const range = document.getWordRangeAtPosition(position);
                     if (!range) continue;
@@ -212,7 +212,7 @@ export function activate(context: ExtensionContext) {
             })
             .catch((e) => {
                 console.warn(
-                    'Connection was not yet ready when requesting image previews or an unexpected error occured.'
+                    'Connection was not yet ready when requesting image previews or an unexpected error occured.',
                 );
                 console.warn(e);
                 return {

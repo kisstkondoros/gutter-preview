@@ -24,10 +24,10 @@ export function imageDecorator(
     decoratorProvider: (
         document: vscode.TextDocument,
         visibleLines: number[],
-        token: vscode.CancellationToken
+        token: vscode.CancellationToken,
     ) => Promise<ImageInfoResponse>,
     context: vscode.ExtensionContext,
-    client: LanguageClient
+    client: LanguageClient,
 ) {
     const [major, minor] = vscode.version.split('.').map((v) => parseInt(v));
 
@@ -49,7 +49,7 @@ export function imageDecorator(
         showImagePreviewOnGutter: boolean,
         editor: vscode.TextEditor,
         imageInfo: ImageInfo,
-        lastScanResult: Decoration[]
+        lastScanResult: Decoration[],
     ) => {
         let decorations: vscode.DecorationOptions[] = [];
 
@@ -60,7 +60,7 @@ export function imageDecorator(
         const underlineEnabled = getConfiguredProperty(
             editor && editor.document ? editor.document : undefined,
             'showUnderline',
-            true
+            true,
         );
 
         var range = client.protocol2CodeConverter.asRange(imageInfo.range);
@@ -74,9 +74,8 @@ export function imageDecorator(
             gutterIconSize: 'contain',
             textDecoration: underlineEnabled ? 'underline' : 'none',
         };
-        let textEditorDecorationType: vscode.TextEditorDecorationType = vscode.window.createTextEditorDecorationType(
-            decorationRenderOptions
-        );
+        let textEditorDecorationType: vscode.TextEditorDecorationType =
+            vscode.window.createTextEditorDecorationType(decorationRenderOptions);
         lastScanResult.push({
             textEditorDecorationType,
             decorations,
@@ -93,7 +92,7 @@ export function imageDecorator(
         if (showImagePreviewOnGutter && editor) {
             editor.setDecorations(
                 textEditorDecorationType,
-                decorations.map((p) => toSingleLineDecorationOption(p))
+                decorations.map((p) => toSingleLineDecorationOption(p)),
             );
         }
     };
@@ -124,7 +123,7 @@ export function imageDecorator(
                             hasOpenFileCommand?: boolean;
                             dimensions?: { height: number; width: number };
                             size?: string;
-                        }
+                        },
                     ) => {
                         const { hasOpenFileCommand = true, dimensions, size } = options || {};
                         let result = '';
@@ -137,10 +136,10 @@ export function imageDecorator(
                             const uri = vscode.Uri.file(item.originalImagePath);
                             const args = [uri];
                             const openFileCommandUrl = vscode.Uri.parse(
-                                `command:revealInExplorer?${encodeURIComponent(JSON.stringify(args))}`
+                                `command:revealInExplorer?${encodeURIComponent(JSON.stringify(args))}`,
                             );
                             const browseFileCommandUrl = vscode.Uri.parse(
-                                `command:revealFileInOS?${encodeURIComponent(JSON.stringify(args))}`
+                                `command:revealFileInOS?${encodeURIComponent(JSON.stringify(args))}`,
                             );
                             result += `  \r\n[Reveal in Side Bar](${openFileCommandUrl} "Reveal in Side Bar")`;
                             result += `  \r\n`;
@@ -176,7 +175,7 @@ export function imageDecorator(
                     try {
                         if (isUrlEncodedFile(item.originalImagePath)) {
                             result = Promise.resolve(
-                                formatPreview(item.originalImagePath, { hasOpenFileCommand: false })
+                                formatPreview(item.originalImagePath, { hasOpenFileCommand: false }),
                             );
                         } else {
                             const dimentionsOfPromise = util.promisify(imageSize)(item.imagePath);
@@ -184,7 +183,7 @@ export function imageDecorator(
 
                             result = Promise.all([dimentionsOfPromise, sizeOfPromise]).then(
                                 ([dimentions, size]) => formatPreview(item.imagePath, { dimensions: dimentions, size }),
-                                () => formatPreview(item.imagePath)
+                                () => formatPreview(item.imagePath),
                             );
                         }
                     } catch (error) {
@@ -235,13 +234,13 @@ export function imageDecorator(
                     const scanResult = getDocumentDecorators(document);
                     clearEditorDecorations(
                         document,
-                        scanResult.decorations.map((p) => p.textEditorDecorationType)
+                        scanResult.decorations.map((p) => p.textEditorDecorationType),
                     );
                     scanResult.decorations.length = 0;
 
                     symbolResponse.images.forEach((p) => {
                         editors.forEach((editor) =>
-                            decorate(showImagePreviewOnGutter, editor, p, scanResult.decorations)
+                            decorate(showImagePreviewOnGutter, editor, p, scanResult.decorations),
                         );
                     });
                 })
@@ -258,19 +257,19 @@ export function imageDecorator(
             if (e) {
                 throttledScan(e.document);
             }
-        })
+        }),
     );
     context.subscriptions.push(
         vscode.window.onDidChangeActiveTextEditor((e) => {
             if (e) {
                 throttledScan(e.document);
             }
-        })
+        }),
     );
     context.subscriptions.push(
         vscode.workspace.onDidChangeWorkspaceFolders(() => {
             refreshAllVisibleEditors();
-        })
+        }),
     );
     context.subscriptions.push(
         vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
@@ -278,14 +277,14 @@ export function imageDecorator(
                 const document = event.textEditor.document;
                 throttledScan(document, 50);
             }
-        })
+        }),
     );
     context.subscriptions.push(
         vscode.workspace.onDidOpenTextDocument((e) => {
             if (e) {
                 throttledScan(e);
             }
-        })
+        }),
     );
 
     refreshAllVisibleEditors();
