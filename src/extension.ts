@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { loadConfig } from 'tsconfig-paths/lib/config-loader';
+import { loadConfig } from './util/ts-config-loader';
 
 import {
     ServerOptions,
