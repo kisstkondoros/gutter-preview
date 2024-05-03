@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import fileSize from 'filesize';
+import { filesize } from 'filesize';
 
 export function copyFile(source, target, cb) {
     var cbCalled = false;
@@ -27,12 +27,12 @@ export function copyFile(source, target, cb) {
 
 export function getFilesize(source: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        fs.stat(source, (err, info) => {
+        fs.stat(source, async (err, info) => {
             if (err) {
                 return reject(err);
             }
 
-            return resolve(fileSize(info.size));
+            return resolve(filesize(info.size, { standard: 'jedec' }));
         });
     });
 }

@@ -1,11 +1,9 @@
 import * as path from 'path';
-import * as vscode from 'vscode';
 import { loadConfig } from 'tsconfig-paths/lib/config-loader';
 
 import {
     ServerOptions,
     TransportKind,
-    ErrorAction,
     Message,
     LanguageClientOptions,
     LanguageClient,
@@ -86,17 +84,17 @@ export function activate(context: ExtensionContext) {
         debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions },
     };
     var output = window.createOutputChannel('gutter-preview');
-    let error: (error, message, count) => ErrorAction = (error: Error, message: Message, count: number) => {
-        output.appendLine(message.jsonrpc);
-        return undefined;
-    };
+
     let clientOptions: LanguageClientOptions = {
         documentSelector: ['*'],
         initializationOptions: {
             storagePath: storageUri.fsPath,
         },
         errorHandler: {
-            error: error,
+            error: (error: Error, message: Message | undefined, count: number | undefined) => {
+                output.appendLine(message.jsonrpc);
+                return undefined;
+            },
 
             closed: () => {
                 return undefined;
@@ -108,9 +106,10 @@ export function activate(context: ExtensionContext) {
     };
 
     let client = new LanguageClient('gutterpreview parser', serverOptions, clientOptions);
-    let disposable = client.start();
-
-    context.subscriptions.push(disposable);
+    const started = client.start();
+    started.then((_) => {
+        context.subscriptions.push({ dispose: () => client.dispose() });
+    });
 
     let symbolUpdater = (
         document: TextDocument,
@@ -131,7 +130,7 @@ export function activate(context: ExtensionContext) {
         }
 
         const getImageInfo = (uri: Uri, visibleLines: number[]): Promise<ImageInfoResponse> => {
-            return client.onReady().then(() => {
+            return started.then(() => {
                 return client.sendRequest(
                     GutterPreviewImageRequestType,
                     {
