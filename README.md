@@ -14,11 +14,15 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.31.1
+    -   Update changelog
+    -   Update dependencies
+    -   Migrate to tsup
 -   0.31.0
     -   Update changelog
     -   Add `avif` support (contribution by @rommelmamedov)
     -   Add option to load images without extensions (contribution by @toFrankie)
-        -    See option "gutterpreview.urlDetectionPatterns" for details
+        -   See option "gutterpreview.urlDetectionPatterns" for details
 -   0.30.0
     -   Update changelog
     -   Update dependencies
