@@ -21,6 +21,7 @@ import {
     Uri,
     Location,
     LocationLink,
+    OutputChannel,
 } from 'vscode';
 import { ImageInfoResponse, GutterPreviewImageRequestType } from './common/protocol';
 import { imageDecorator } from './decorator';
@@ -85,7 +86,7 @@ export function activate(context: ExtensionContext) {
         run: { module: serverModule, transport: TransportKind.ipc },
         debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions },
     };
-    var output = window.createOutputChannel('gutter-preview');
+    var output: OutputChannel | undefined = undefined;
 
     let clientOptions: LanguageClientOptions = {
         documentSelector: ['*'],
@@ -94,6 +95,9 @@ export function activate(context: ExtensionContext) {
         },
         errorHandler: {
             error: (error: Error, message: Message | undefined, count: number | undefined) => {
+                if (!output) {
+                    output = window.createOutputChannel('gutter-preview');
+                }
                 output.appendLine(message.jsonrpc);
                 return {
                     handled: true,
