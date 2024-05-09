@@ -109,7 +109,9 @@ export const ImageCache = {
                 const injected = promise.then((p) => injectStyles(p));
                 ImageCache.set(absoluteImagePath, injected);
                 return injected;
-            } catch (error) {}
+            } catch (error) {
+                return Promise.reject(error);
+            }
         }
     },
 

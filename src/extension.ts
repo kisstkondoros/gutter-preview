@@ -7,6 +7,8 @@ import {
     Message,
     LanguageClientOptions,
     LanguageClient,
+    CloseAction,
+    ErrorAction,
 } from 'vscode-languageclient/node';
 import {
     ExtensionContext,
@@ -93,11 +95,18 @@ export function activate(context: ExtensionContext) {
         errorHandler: {
             error: (error: Error, message: Message | undefined, count: number | undefined) => {
                 output.appendLine(message.jsonrpc);
-                return undefined;
+                return {
+                    handled: true,
+                    action: ErrorAction.Continue,
+                    message:
+                        'An error occured while processing a request for the gutter-preview extension. Check the output "gutter-preview" for further details.',
+                };
             },
 
             closed: () => {
-                return undefined;
+                return {
+                    action: CloseAction.Restart,
+                };
             },
         },
         synchronize: {
