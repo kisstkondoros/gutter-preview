@@ -14,6 +14,11 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.31.2
+    -   Update changelog
+    -   Attempt to fix server restarts
+    -   Change activation event to onStartupFinished
+    -   Defer creation of output channel
 -   0.31.1
     -   Update changelog
     -   Update dependencies
