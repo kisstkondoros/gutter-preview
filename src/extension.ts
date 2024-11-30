@@ -152,7 +152,10 @@ export function activate(context: ExtensionContext) {
                         fileName: document.fileName,
                         workspaceFolder: workspaceFolder,
                         currentColor: getConfiguredProperty(document, 'currentColorForSVG', ''),
-                        additionalSourcefolder: getConfiguredProperty(document, 'sourceFolder', ''),
+                        additionalSourcefolders: [
+                            ...getConfiguredProperty<string[]>(document, 'sourceFolder', []),
+                            ...getConfiguredProperty<string[]>(document, 'sourceFolders', []),
+                        ],
                         paths: paths,
                     },
                     token,

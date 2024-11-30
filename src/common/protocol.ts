@@ -13,7 +13,7 @@ export interface ImageInfoRequest {
     fileName: string;
     visibleLines: number[];
     workspaceFolder: string;
-    additionalSourcefolder: string;
+    additionalSourcefolders: string[];
     currentColor: string;
     paths: {
         [alias: string]: string | string[];

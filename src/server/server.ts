@@ -93,7 +93,7 @@ async function collectEntries(
     let items = [];
     ImageCache.setCurrentColor(request.currentColor);
     absoluteUrlMappers.forEach((absoluteUrlMapper) =>
-        absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolder, request.paths),
+        absoluteUrlMapper.refreshConfig(request.workspaceFolder, request.additionalSourcefolders, request.paths),
     );
 
     const configuration = await connection.workspace.getConfiguration({

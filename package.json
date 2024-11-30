@@ -37,6 +37,15 @@
           "description": "Additional folder to consider when resolving relative urls",
           "type": "string"
         },
+        "gutterpreview.sourceFolders": {
+          "default": [
+            "static",
+            "public"
+          ],
+          "scope": "resource",
+          "description": "Additional folders to consider when resolving relative urls",
+          "type": "array"
+        },
         "gutterpreview.imagePreviewMaxHeight": {
           "default": "100",
           "scope": "resource",
