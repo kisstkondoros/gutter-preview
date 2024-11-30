@@ -17,7 +17,18 @@ export function replaceCurrentColorInDataURI(uri: string, currentColor: string) 
     if (uri.startsWith(svgPrelude)) {
         uri = uri.substring(svgPrelude.length);
         const original = decodeURIComponent(uri);
-        uri = svgPrelude + encodeURIComponent(original.replace('<svg', `<svg style="color:${currentColor}"`));
+        uri =
+            base64SVGPrelude + encodeURIComponent(btoa(original.replace('<svg', `<svg style="color:${currentColor}"`)));
+        return uri;
+    }
+    const defaultEncodingSvgPrelude = 'data:image/svg+xml,';
+    if (uri.startsWith(defaultEncodingSvgPrelude)) {
+        // restore content from the original encoded uri, see dataurlrecognizer#escapeURIContent
+        uri = decodeURIComponent(uri.substring(defaultEncodingSvgPrelude.length));
+        if (uri.startsWith('%3c')) {
+            uri = decodeURIComponent(uri);
+        }
+        uri = base64SVGPrelude + encodeURIComponent(btoa(uri.replace('<svg', `<svg style="color:${currentColor}"`)));
         return uri;
     }
     return uri;
