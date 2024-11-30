@@ -14,6 +14,14 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.32.0
+    -   Update changelog
+    -   Support multiple source folders
+    -   Fix typo in decorator.ts
+    -   Avoid rendering performance issues with large images
+    -   Extract image data from URL encoded data URIs
+    -   Add jfif to the list of supported file formats
+    -   Add support for asciidoc's imagesdir attribute
 -   0.31.2
     -   Update changelog
     -   Attempt to fix server restarts
