@@ -80,7 +80,7 @@ export function activate(context: ExtensionContext) {
 
     let serverModule = context.asAbsolutePath(path.join('dist', 'server.js'));
 
-    let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
+    let debugOptions = { execArgv: ['--nolazy', '--inspect=6099'] };
 
     let serverOptions: ServerOptions = {
         run: { module: serverModule, transport: TransportKind.ipc },
