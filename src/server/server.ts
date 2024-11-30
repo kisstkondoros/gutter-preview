@@ -24,6 +24,7 @@ import { nonNullOrEmpty, nonHttpOnly } from '../util/stringutil';
 import { ImageCache } from '../util/imagecache';
 import { UrlMatch } from '../recognizers/recognizer';
 import { URI } from 'vscode-uri';
+import { replaceCurrentColorInDataURI } from '../util/currentColorHelper';
 
 let connection: Connection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
@@ -152,8 +153,12 @@ async function collectEntries(
                     items = items.concat(
                         Array.from(absoluteUrlsSet.values()).map((absoluteImagePath) => {
                             const result =
-                                convertToLocalImagePath(absoluteImagePath, urlMatch, urlDetectionPatterns) ||
-                                Promise.resolve(null);
+                                convertToLocalImagePath(
+                                    absoluteImagePath,
+                                    urlMatch,
+                                    urlDetectionPatterns,
+                                    request.currentColor,
+                                ) || Promise.resolve(null);
                             return result.catch((p) => null);
                         }),
                     );
@@ -166,6 +171,7 @@ async function convertToLocalImagePath(
     absoluteImagePath: string,
     urlMatch: UrlMatch,
     urlDetectionPatterns: RegExp[] = [],
+    currentColor: string,
 ): Promise<ImageInfo> {
     if (absoluteImagePath) {
         let isDataUri = absoluteImagePath.indexOf('data:image') == 0;
@@ -195,7 +201,7 @@ async function convertToLocalImagePath(
             if (isDataUri) {
                 return Promise.resolve({
                     originalImagePath: absoluteImagePath,
-                    imagePath: absoluteImagePath,
+                    imagePath: replaceCurrentColorInDataURI(absoluteImagePath, currentColor),
                     range,
                 });
             } else {

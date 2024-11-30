@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
 import { copyFile } from './fileutil';
-import { promisify } from 'util';
+import { replaceCurrentColorInFileContent } from './currentColorHelper';
 
 tmp.setGracefulCleanup();
 
@@ -84,29 +84,7 @@ export const ImageCache = {
                         });
                     }
                 });
-
-                const injectStyles = (path: string) => {
-                    return new Promise<string>((res, rej) => {
-                        if (path.endsWith('.svg') && currentColorForClojure && currentColorForClojure != '') {
-                            const read = promisify(fs.readFile);
-                            const write = promisify(fs.writeFile);
-
-                            read(path)
-                                .then((data) => {
-                                    const original = data.toString('utf-8');
-                                    return original.replace('<svg', `<svg style="color:${currentColorForClojure}"`);
-                                })
-                                .then((data) => {
-                                    return write(path, data);
-                                })
-                                .then(() => res(path))
-                                .catch((err) => rej(err));
-                        } else {
-                            res(path);
-                        }
-                    });
-                };
-                const injected = promise.then((p) => injectStyles(p));
+                const injected = promise.then((p) => replaceCurrentColorInFileContent(p, currentColorForClojure));
                 ImageCache.set(absoluteImagePath, injected);
                 return injected;
             } catch (error) {

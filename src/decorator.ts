@@ -174,9 +174,7 @@ export function imageDecorator(
 
                     try {
                         if (isUrlEncodedFile(item.originalImagePath)) {
-                            result = Promise.resolve(
-                                formatPreview(item.originalImagePath, { hasOpenFileCommand: false }),
-                            );
+                            result = Promise.resolve(formatPreview(item.imagePath, { hasOpenFileCommand: false }));
                         } else {
                             const dimentionsOfPromise = util.promisify(imageSize)(item.imagePath);
                             const sizeOfPromise = getFilesize(item.imagePath);
