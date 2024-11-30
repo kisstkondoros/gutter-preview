@@ -1,3 +1,5 @@
+// workaround to support scheme like aliases like qrc: for Qt
+const schemePrefix = '([a-zA-Z]{2,}:)';
 const pathPrefix = '(\\.\\.?|\\~)';
 const pathSeparatorClause = '\\/';
 // '":; are allowed in paths but they are often separators so ignore them
@@ -6,6 +8,8 @@ const excludedPathCharactersClause = '[^\\0\\s!$`&*()\\[\\]+\'":;\\\\]';
 /** A regex that matches paths in the form /foo, ~/foo, ./foo, ../foo, foo/bar */
 const unixLocalLinkClause =
     '((' +
+    schemePrefix +
+    '|' +
     pathPrefix +
     '|(' +
     excludedPathCharactersClause +
@@ -22,6 +26,8 @@ const winExcludedPathCharactersClause = '[^\\0<>\\?\\|\\/\\s!$`&*()\\[\\]+\'":;]
 /** A regex that matches paths in the form c:\foo, ~\foo, .\foo, ..\foo, foo\bar */
 const winLocalLinkClause =
     '((' +
+    schemePrefix +
+    '|' +
     winPathPrefix +
     '|(' +
     winExcludedPathCharactersClause +
