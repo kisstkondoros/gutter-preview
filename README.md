@@ -14,6 +14,9 @@ Shows image preview in the gutter and on hover
 
 ### Change Log
 
+-   0.32.2
+    -   Update changelog
+    -   Support slash "/" in aliases
 -   0.32.1
     -   Update changelog
     -   Support protocol/scheme in aliases
