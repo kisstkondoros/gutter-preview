@@ -53,7 +53,9 @@ export const ImageCache = {
                 const filePath = tempFile.name;
                 const promise = new Promise<string>((resolve, reject) => {
                     if (absoluteImageUrl.scheme && absoluteImageUrl.scheme.startsWith('http')) {
-                        fetch(new url.URL(absoluteImagePath).toString())
+                        fetch(new url.URL(absoluteImagePath).toString(), {
+                            size: 20 * 1024 * 1024, // 20 MB
+                        })
                             .then((resp) => {
                                 if (!resp.ok) {
                                     reject(resp.statusText);
@@ -80,6 +82,8 @@ export const ImageCache = {
                         copyFile(absoluteImagePath, filePath, (err) => {
                             if (!err) {
                                 resolve(filePath);
+                            } else {
+                                reject(err);
                             }
                         });
                     }

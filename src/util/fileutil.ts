@@ -1,7 +1,14 @@
 import * as fs from 'fs';
 import { filesize } from 'filesize';
 
-export function copyFile(source, target, cb) {
+export function copyFile(source: string, target: string, cb: (err?: any) => void) {
+    const fileSizeInBytes = fs.statSync(source).size;
+    const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+    if (fileSizeInMegabytes > 20) {
+        done(new Error('Maximum file size of 20MB is exceeded'));
+        return;
+    }
+
     var cbCalled = false;
 
     var rd = fs.createReadStream(source);
