@@ -110,12 +110,16 @@ async function collectEntries(
         .filter((p: RegExp | undefined) => !!p);
 
     const lines = document.getText().split(/\r\n|\r|\n/);
+    let relativeImageDir = '';
     for (const lineIndex of request.visibleLines) {
         var line = lines[lineIndex];
         if (!line) continue;
         if (cancellationToken.isCancellationRequested) return items;
         if (line.length > 20000) {
             continue;
+        }
+        if (line.startsWith(':imagesdir:')) {
+            relativeImageDir = line.substring(':imagesdir:'.length).trim();
         }
 
         recognizers
@@ -143,7 +147,7 @@ async function collectEntries(
                     let absoluteUrls = absoluteUrlMappers
                         .map((mapper) => {
                             try {
-                                return mapper.map(request.fileName, urlMatch.url);
+                                return mapper.map(request.fileName, urlMatch.url, { relativeImageDir });
                             } catch (e) {}
                         })
                         .filter((item) => nonNullOrEmpty(item) && nonHttpOnly(item));
