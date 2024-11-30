@@ -28,19 +28,17 @@ class RelativeToWorkspaceRootFileUrlMapper implements AbsoluteUrlMapper {
                         pathsToTest.push(resolvedPath);
                     });
                 }
-                const segments = pathName.split('/');
-                const firstSegment = segments[0];
-                if (firstSegment && this.aliases.indexOf(firstSegment) > -1) {
-                    let aliases = this.paths[firstSegment];
-                    if (!Array.isArray(aliases)) {
-                        aliases = [aliases];
+                this.aliases.forEach((alias) => {
+                    if (alias != '' && pathName.startsWith(alias)) {
+                        let aliases = this.paths[alias];
+                        if (!Array.isArray(aliases)) {
+                            aliases = [aliases];
+                        }
+                        aliases.forEach((replacement) => {
+                            pathsToTest.push(pathName.replace(alias, replacement));
+                        });
                     }
-                    aliases.forEach((alias) => {
-                        segments[0] = alias;
-                        const resolvedPath = segments.join('/');
-                        pathsToTest.push(resolvedPath);
-                    });
-                }
+                });
 
                 for (let index = 0; index < pathsToTest.length; index++) {
                     const testPath = pathsToTest[index];
