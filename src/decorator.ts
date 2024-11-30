@@ -176,10 +176,10 @@ export function imageDecorator(
                         if (isUrlEncodedFile(item.originalImagePath)) {
                             result = Promise.resolve(formatPreview(item.imagePath, { hasOpenFileCommand: false }));
                         } else {
-                            const dimentionsOfPromise = util.promisify(imageSize)(item.imagePath);
+                            const dimensionsOfPromise = util.promisify(imageSize)(item.imagePath);
                             const sizeOfPromise = getFilesize(item.imagePath);
 
-                            result = Promise.all([dimentionsOfPromise, sizeOfPromise]).then(
+                            result = Promise.all([dimensionsOfPromise, sizeOfPromise]).then(
                                 ([dimentions, size]) => formatPreview(item.imagePath, { dimensions: dimentions, size }),
                                 () => formatPreview(item.imagePath),
                             );
